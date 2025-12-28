@@ -1,0 +1,126 @@
+# PalmJob - Project Rules
+
+## 프로젝트 개요
+
+- **목적**: 손바닥 사진 분석 → 이색 직업 추천 웹 서비스
+- **성격**: 재미/공감/공유 목적 (과학적 진단 아님)
+- **수익 모델**: 광고 기반
+- **기술 스택**: Next.js 16, React 19, TypeScript 5, TailwindCSS
+
+---
+
+## 아키텍처
+
+### 프론트엔드 구조
+
+```
+src/
+├── app/                    # Next.js App Router 페이지
+│   ├── (main)/            # 메인(업로드) 페이지
+│   ├── result/[id]/       # 결과 화면
+│   └── share/[id]/        # 결과 랜딩 페이지 (공유용)
+├── components/             # React 컴포넌트 (Atomic Design)
+│   ├── atoms/             # Button, Text, Icon
+│   ├── molecules/         # UploadArea, HandSelector, ResultCard
+│   ├── organisms/         # Header, Footer, UploadForm
+│   └── templates/         # PageLayout
+├── services/               # API 통신 레이어
+├── hooks/                  # 커스텀 훅
+├── utils/                  # 유틸리티 함수
+├── config/                 # 설정 파일
+├── types/                  # TypeScript 타입 정의
+└── styles/                 # 글로벌 스타일
+```
+
+### 패턴
+
+- **아키텍처**: Next.js App Router
+- **상태 관리**: React useState/useReducer (간단한 서비스이므로)
+- **스타일링**: TailwindCSS
+- **컴포넌트**: Atomic Design 패턴
+
+---
+
+## 코드 스타일
+
+### 필수 규칙
+
+- TypeScript strict mode 사용
+- 함수형 컴포넌트 + hooks 패턴
+- Server Component 기본, Client Component는 `'use client'` 명시
+- 절대 경로 `@/` 사용
+- 컴포넌트 파일명: PascalCase
+- Props 타입: `ComponentNameProps`
+
+### 린터/포매터
+
+- ESLint + Prettier
+- TailwindCSS 클래스 정렬 플러그인
+
+---
+
+## 핵심 비즈니스 규칙 (기획서 기반)
+
+### 데이터 처리
+
+- **손바닥 사진**: 절대 저장 안 함, 결과 생성 후 즉시 폐기
+- **결과물 보관**: 30일 (직업명, 결과 카드 이미지, 해석 문장)
+- **개인정보**: 수집 안 함 (로그인 없음)
+
+### 사용자 흐름
+
+1. 메인(업로드) 화면: 왼손/오른손 선택 → 사진 업로드
+2. 대기(로딩) 화면: 분석 중 표시
+3. 결과 화면: 직업 + 결과 카드 + 해석 문장 + 공유 버튼
+4. 결과 랜딩 화면: 공유 링크 접속 시 결과 + "나도 해보기" 버튼
+
+### 결과 카드 스펙
+
+- 3D 오브젝트 중심 디자인
+- 상단: 직업 타이틀
+- 중앙: 직업 상징 3D 오브젝트
+- 배경: 손금 라인 패턴
+- 하단: 한 줄 코멘트 (선택)
+
+### 예외 처리
+
+- 손바닥 아닌 사진: "손바닥 사진을 다시 올려주세요."
+- 손바닥 잘림: "손바닥 전체가 나오게 촬영해 주세요."
+- 어두움/흐림: "밝은 곳에서 다시 촬영해 주세요."
+- 손 선택 불일치: "선택하신 손과 달라 보입니다. 손 선택을 다시 확인하고 재업로드해 주세요."
+- 생성 실패: 기본 카드/기본 결과로 대체 제공
+
+---
+
+## 테스트
+
+- **단위 테스트**: Vitest + React Testing Library
+- **E2E 테스트**: Playwright
+- **테스트 커버리지 목표**: 핵심 플로우 80% 이상
+
+---
+
+## 배포
+
+- **플랫폼**: Fly.io (또는 Vercel)
+- **환경**: development, staging, production
+- **CI/CD**: GitHub Actions
+
+---
+
+## 성과 지표 (KPI)
+
+- 업로드 대비 결과 도달률
+- 결과 화면 저장/공유 클릭률
+- 공유 랜딩 → "나도 해보기" 전환율
+- 실패율 (손바닥 인식 실패/품질 문제)
+- 결과 카드 신규 생성 비율 (비용 최적화)
+
+---
+
+## 참고 문서
+
+- [CLAUDE.md](./CLAUDE.md) - AI 코딩 가이드
+- [docs/PRD.md](./docs/PRD.md) - 기획서 요약
+- [README.md](./README.md) - 프로젝트 개요
+

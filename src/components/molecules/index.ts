@@ -1,0 +1,8 @@
+export { HandSelector } from "./HandSelector";
+export type { HandSelectorProps } from "./HandSelector";
+
+export { UploadArea } from "./UploadArea";
+export type { UploadAreaProps } from "./UploadArea";
+
+export { DualUploadArea } from "./DualUploadArea";
+export type { DualUploadAreaProps } from "./DualUploadArea";

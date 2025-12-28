@@ -1,0 +1,138 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/atoms";
+import { DualUploadArea } from "@/components/molecules";
+
+export default function UploadPage() {
+  const router = useRouter();
+  const [leftImage, setLeftImage] = useState<File | null>(null);
+  const [rightImage, setRightImage] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = useCallback(async () => {
+    if (!leftImage || !rightImage) return;
+
+    setIsUploading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("leftImage", leftImage);
+      formData.append("rightImage", rightImage);
+
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "분석 중 오류가 발생했습니다.");
+      }
+
+      router.push(`/analyzing/${result.id}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "오류가 발생했습니다.");
+    } finally {
+      setIsUploading(false);
+    }
+  }, [leftImage, rightImage, router]);
+
+  const isSubmitDisabled = !leftImage || !rightImage || isUploading;
+
+  return (
+    <main className="min-h-dvh flex flex-col">
+      {/* 헤더 영역 */}
+      <header className="px-4 py-12 text-center">
+        <h1 className="text-5xl md:text-6xl font-bold mb-4">
+          <span className="bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-secondary)] to-[var(--color-accent)] bg-clip-text text-transparent">
+            PalmJob
+          </span>
+        </h1>
+        <p className="text-xl md:text-2xl font-semibold text-[var(--color-text-primary)]">
+          손금으로 찾는 나만의 이색 직업
+        </p>
+      </header>
+
+      {/* 메인 콘텐츠 */}
+      <div className="flex-1 px-4 pb-8">
+        <div className="mx-auto max-w-md space-y-6">
+          {/* 양손 사진 업로드 */}
+          <section className="glass rounded-[var(--radius-xl)] p-5 shadow-[var(--shadow-sm)]">
+            <h2 className="mb-4 text-sm font-semibold text-[var(--color-text-secondary)] flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center text-xs">
+                1
+              </span>
+              양손 사진을 올려주세요
+            </h2>
+            
+            <DualUploadArea
+              leftImage={leftImage}
+              rightImage={rightImage}
+              onLeftImageSelect={setLeftImage}
+              onRightImageSelect={setRightImage}
+            />
+          </section>
+
+          {/* 촬영 가이드 */}
+          <section className="p-5 bg-[var(--color-primary-50)] rounded-[var(--radius-xl)] border border-[var(--color-border)]">
+            <h3 className="text-sm font-semibold text-[var(--color-primary)] mb-3 flex items-center gap-2">
+              <span>📸</span> 촬영 가이드
+            </h3>
+            <ul className="text-sm text-[var(--color-text-secondary)] space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--color-secondary)]">✦</span>
+                손바닥 전체가 보이게 촬영해 주세요
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--color-secondary)]">✦</span>
+                밝은 곳에서 촬영하면 더 정확해요
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--color-secondary)]">✦</span>
+                손금이 선명하게 보이도록 펴주세요
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[var(--color-secondary)]">✦</span>
+                <strong>양손 모두</strong> 업로드해야 분석이 시작돼요
+              </li>
+            </ul>
+          </section>
+
+          {/* 에러 메시지 */}
+          {error && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-[var(--radius-lg)] text-sm text-red-600 flex items-center gap-2">
+              <span>⚠️</span>
+              {error}
+            </div>
+          )}
+
+          {/* 제출 버튼 */}
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitDisabled}
+            isLoading={isUploading}
+            size="lg"
+            fullWidth
+          >
+            {isUploading ? "분석 중..." : "내 직업 찾기 ✨"}
+          </Button>
+
+          {/* 개인정보 안내 */}
+          <div className="text-center space-y-1">
+            <p className="text-xs text-[var(--color-text-muted)]">
+              🔒 업로드한 손바닥 사진은 결과 생성 후 즉시 폐기됩니다
+            </p>
+            <p className="text-xs text-[var(--color-text-muted)]">
+              결과 링크는 30일 동안 유지됩니다
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
