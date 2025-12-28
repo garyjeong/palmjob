@@ -25,6 +25,8 @@ export function DualUploadArea({
 
   const leftInputRef = useRef<HTMLInputElement>(null);
   const rightInputRef = useRef<HTMLInputElement>(null);
+  const leftDragCounter = useRef(0);
+  const rightDragCounter = useRef(0);
 
   const validateFile = useCallback(
     (file: File): boolean => {
@@ -98,27 +100,34 @@ export function DualUploadArea({
   );
 
   // 드래그 앤 드롭 핸들러
-  const handleDragOver = useCallback((e: DragEvent<HTMLButtonElement>) => {
+  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
   }, []);
 
-  const handleLeftDragEnter = useCallback((e: DragEvent<HTMLButtonElement>) => {
+  const handleLeftDragEnter = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    setLeftDragging(true);
+    leftDragCounter.current++;
+    if (leftDragCounter.current === 1) {
+      setLeftDragging(true);
+    }
   }, []);
 
-  const handleLeftDragLeave = useCallback((e: DragEvent<HTMLButtonElement>) => {
+  const handleLeftDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    setLeftDragging(false);
+    leftDragCounter.current--;
+    if (leftDragCounter.current === 0) {
+      setLeftDragging(false);
+    }
   }, []);
 
   const handleLeftDrop = useCallback(
-    (e: DragEvent<HTMLButtonElement>) => {
+    (e: DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       e.stopPropagation();
+      leftDragCounter.current = 0;
       setLeftDragging(false);
       
       const file = e.dataTransfer.files?.[0];
@@ -127,22 +136,29 @@ export function DualUploadArea({
     [handleLeftFile]
   );
 
-  const handleRightDragEnter = useCallback((e: DragEvent<HTMLButtonElement>) => {
+  const handleRightDragEnter = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    setRightDragging(true);
+    rightDragCounter.current++;
+    if (rightDragCounter.current === 1) {
+      setRightDragging(true);
+    }
   }, []);
 
-  const handleRightDragLeave = useCallback((e: DragEvent<HTMLButtonElement>) => {
+  const handleRightDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    setRightDragging(false);
+    rightDragCounter.current--;
+    if (rightDragCounter.current === 0) {
+      setRightDragging(false);
+    }
   }, []);
 
   const handleRightDrop = useCallback(
-    (e: DragEvent<HTMLButtonElement>) => {
+    (e: DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       e.stopPropagation();
+      rightDragCounter.current = 0;
       setRightDragging(false);
       
       const file = e.dataTransfer.files?.[0];
@@ -192,16 +208,18 @@ export function DualUploadArea({
               </button>
             </div>
           ) : (
-            <button
-              type="button"
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => leftInputRef.current?.click()}
+              onKeyDown={(e) => e.key === 'Enter' && leftInputRef.current?.click()}
               onDragOver={handleDragOver}
               onDragEnter={handleLeftDragEnter}
               onDragLeave={handleLeftDragLeave}
               onDrop={handleLeftDrop}
               className={`
                 w-full aspect-square flex flex-col items-center justify-center gap-2
-                border-2 border-dashed rounded-[var(--radius-xl)]
+                border-2 border-dashed rounded-[var(--radius-xl)] cursor-pointer
                 transition-all duration-[var(--transition-normal)]
                 ${leftDragging 
                   ? "border-[var(--color-primary)] bg-[var(--color-primary-50)] scale-[1.02]" 
@@ -209,11 +227,11 @@ export function DualUploadArea({
                 }
               `}
             >
-              <span className={`text-4xl transition-transform ${leftDragging ? "scale-110" : ""}`}>🤚</span>
-              <span className="text-sm text-[var(--color-text-muted)]">
+              <span className={`text-4xl transition-transform pointer-events-none ${leftDragging ? "scale-110" : ""}`}>🤚</span>
+              <span className="text-sm text-[var(--color-text-muted)] pointer-events-none">
                 {leftDragging ? "여기에 놓으세요" : "왼손 업로드"}
               </span>
-            </button>
+            </div>
           )}
           <input
             ref={leftInputRef}
@@ -261,16 +279,18 @@ export function DualUploadArea({
               </button>
             </div>
           ) : (
-            <button
-              type="button"
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => rightInputRef.current?.click()}
+              onKeyDown={(e) => e.key === 'Enter' && rightInputRef.current?.click()}
               onDragOver={handleDragOver}
               onDragEnter={handleRightDragEnter}
               onDragLeave={handleRightDragLeave}
               onDrop={handleRightDrop}
               className={`
                 w-full aspect-square flex flex-col items-center justify-center gap-2
-                border-2 border-dashed rounded-[var(--radius-xl)]
+                border-2 border-dashed rounded-[var(--radius-xl)] cursor-pointer
                 transition-all duration-[var(--transition-normal)]
                 ${rightDragging 
                   ? "border-[var(--color-primary)] bg-[var(--color-primary-50)] scale-[1.02]" 
@@ -278,11 +298,11 @@ export function DualUploadArea({
                 }
               `}
             >
-              <span className={`text-4xl transform scale-x-[-1] transition-transform ${rightDragging ? "scale-110" : ""}`}>🤚</span>
-              <span className="text-sm text-[var(--color-text-muted)]">
+              <span className={`text-4xl transform scale-x-[-1] transition-transform pointer-events-none ${rightDragging ? "scale-110" : ""}`}>🤚</span>
+              <span className="text-sm text-[var(--color-text-muted)] pointer-events-none">
                 {rightDragging ? "여기에 놓으세요" : "오른손 업로드"}
               </span>
-            </button>
+            </div>
           )}
           <input
             ref={rightInputRef}
