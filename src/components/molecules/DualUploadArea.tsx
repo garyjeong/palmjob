@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, DragEvent } from "react";
 
 export interface DualUploadAreaProps {
   leftImage: File | null;
@@ -20,6 +20,8 @@ export function DualUploadArea({
   const [leftPreview, setLeftPreview] = useState<string | null>(null);
   const [rightPreview, setRightPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [leftDragging, setLeftDragging] = useState(false);
+  const [rightDragging, setRightDragging] = useState(false);
 
   const leftInputRef = useRef<HTMLInputElement>(null);
   const rightInputRef = useRef<HTMLInputElement>(null);
@@ -95,6 +97,60 @@ export function DualUploadArea({
     [handleRightFile]
   );
 
+  // 드래그 앤 드롭 핸들러
+  const handleDragOver = useCallback((e: DragEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleLeftDragEnter = useCallback((e: DragEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setLeftDragging(true);
+  }, []);
+
+  const handleLeftDragLeave = useCallback((e: DragEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setLeftDragging(false);
+  }, []);
+
+  const handleLeftDrop = useCallback(
+    (e: DragEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setLeftDragging(false);
+      
+      const file = e.dataTransfer.files?.[0];
+      if (file) handleLeftFile(file);
+    },
+    [handleLeftFile]
+  );
+
+  const handleRightDragEnter = useCallback((e: DragEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setRightDragging(true);
+  }, []);
+
+  const handleRightDragLeave = useCallback((e: DragEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setRightDragging(false);
+  }, []);
+
+  const handleRightDrop = useCallback(
+    (e: DragEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setRightDragging(false);
+      
+      const file = e.dataTransfer.files?.[0];
+      if (file) handleRightFile(file);
+    },
+    [handleRightFile]
+  );
+
   return (
     <div className="space-y-4">
       {/* 양손 업로드 영역 */}
@@ -139,15 +195,24 @@ export function DualUploadArea({
             <button
               type="button"
               onClick={() => leftInputRef.current?.click()}
-              className="
+              onDragOver={handleDragOver}
+              onDragEnter={handleLeftDragEnter}
+              onDragLeave={handleLeftDragLeave}
+              onDrop={handleLeftDrop}
+              className={`
                 w-full aspect-square flex flex-col items-center justify-center gap-2
-                border-2 border-dashed border-[var(--color-border)] rounded-[var(--radius-xl)]
-                bg-[var(--color-surface)] hover:border-[var(--color-primary-light)] hover:bg-[var(--color-primary-50)]/50
+                border-2 border-dashed rounded-[var(--radius-xl)]
                 transition-all duration-[var(--transition-normal)]
-              "
+                ${leftDragging 
+                  ? "border-[var(--color-primary)] bg-[var(--color-primary-50)] scale-[1.02]" 
+                  : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary-light)] hover:bg-[var(--color-primary-50)]/50"
+                }
+              `}
             >
-              <span className="text-4xl">🤚</span>
-              <span className="text-sm text-[var(--color-text-muted)]">왼손 업로드</span>
+              <span className={`text-4xl transition-transform ${leftDragging ? "scale-110" : ""}`}>🤚</span>
+              <span className="text-sm text-[var(--color-text-muted)]">
+                {leftDragging ? "여기에 놓으세요" : "왼손 업로드"}
+              </span>
             </button>
           )}
           <input
@@ -199,15 +264,24 @@ export function DualUploadArea({
             <button
               type="button"
               onClick={() => rightInputRef.current?.click()}
-              className="
+              onDragOver={handleDragOver}
+              onDragEnter={handleRightDragEnter}
+              onDragLeave={handleRightDragLeave}
+              onDrop={handleRightDrop}
+              className={`
                 w-full aspect-square flex flex-col items-center justify-center gap-2
-                border-2 border-dashed border-[var(--color-border)] rounded-[var(--radius-xl)]
-                bg-[var(--color-surface)] hover:border-[var(--color-primary-light)] hover:bg-[var(--color-primary-50)]/50
+                border-2 border-dashed rounded-[var(--radius-xl)]
                 transition-all duration-[var(--transition-normal)]
-              "
+                ${rightDragging 
+                  ? "border-[var(--color-primary)] bg-[var(--color-primary-50)] scale-[1.02]" 
+                  : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary-light)] hover:bg-[var(--color-primary-50)]/50"
+                }
+              `}
             >
-              <span className="text-4xl transform scale-x-[-1]">🤚</span>
-              <span className="text-sm text-[var(--color-text-muted)]">오른손 업로드</span>
+              <span className={`text-4xl transform scale-x-[-1] transition-transform ${rightDragging ? "scale-110" : ""}`}>🤚</span>
+              <span className="text-sm text-[var(--color-text-muted)]">
+                {rightDragging ? "여기에 놓으세요" : "오른손 업로드"}
+              </span>
             </button>
           )}
           <input
