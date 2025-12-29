@@ -36,8 +36,7 @@ User-agent: ia_archiver
 Allow: /
 
 # Sitemap 위치
-# 배포 시 실제 도메인으로 변경하세요 (예: https://palmjob.com/sitemap.xml)
-Sitemap: https://palmjob.com/sitemap.xml
+Sitemap: https://palmjob.fly.dev/sitemap.xml
 
 # 크롤링 속도 제한 (선택사항, 필요시 조정)
 # Crawl-delay: 1
