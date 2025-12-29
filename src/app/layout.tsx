@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     description: "손바닥 사진으로 나만의 이색 직업을 찾아보세요! 🖐️✨",
     images: [
       {
-        url: `${baseUrl}/og-image.png`,
+        url: `${baseUrl}/api/og`,
         width: 1200,
         height: 630,
         alt: "PalmJob - 손금으로 찾는 나만의 이색 직업",
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "PalmJob - 손금으로 찾는 나만의 이색 직업",
     description: "손바닥 사진으로 나만의 이색 직업을 찾아보세요! 🖐️✨",
-    images: [`${baseUrl}/og-image.png`],
+    images: [`${baseUrl}/api/og`],
   },
   robots: {
     index: true,

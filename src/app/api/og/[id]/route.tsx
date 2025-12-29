@@ -1,8 +1,7 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
-import { getAnalysis } from "@/lib/redis";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 // 이미지 크기 (SNS 권장)
 const WIDTH = 1200;
@@ -24,6 +23,7 @@ function getJobEmoji(title: string): string {
     "시간 관리 코치": "⏰",
     "행운 배달부": "🍀",
     "꿈 해석가": "🌙",
+    "꿈속 여행사": "🌌",
     "웃음 치료사": "😄",
     "색깔 컨설턴트": "🎨",
     "비밀 기록 보관자": "📜",
@@ -45,10 +45,24 @@ export async function GET(
       return new Response("ID is required", { status: 400 });
     }
 
-    const result = await getAnalysis(id);
+    // Edge Runtime에서는 fetch API로 결과 데이터 가져오기
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://palm.gary-world.app";
+    let job = null;
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/result/${id}`, {
+        headers: { "Content-Type": "application/json" },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        job = data?.job;
+      }
+    } catch (fetchError) {
+      console.error("Failed to fetch result:", fetchError);
+    }
 
     // 결과가 없거나 직업 정보가 없는 경우 기본 이미지
-    const job = result?.job;
     const title = job?.title || "나만의 이색 직업";
     const shortComment = job?.shortComment || "손금으로 찾아보세요!";
     const emoji = getJobEmoji(title);
@@ -65,7 +79,6 @@ export async function GET(
             justifyContent: "center",
             background: "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
             position: "relative",
-            fontFamily: "sans-serif",
           }}
         >
           {/* 손금 패턴 배경 */}
@@ -78,6 +91,7 @@ export async function GET(
               bottom: 0,
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 Q35 25, 30 55 M20 10 Q30 30, 25 50 M40 15 Q35 35, 38 45' stroke='white' stroke-width='0.5' fill='none' opacity='0.15'/%3E%3C/svg%3E")`,
               backgroundSize: "60px 60px",
+              display: "flex",
             }}
           />
 
@@ -156,7 +170,31 @@ export async function GET(
     );
   } catch (error) {
     console.error("OG Image generation error:", error);
-    return new Response("Failed to generate image", { status: 500 });
+    
+    // 에러 시에도 기본 이미지 반환
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
+          }}
+        >
+          <div style={{ fontSize: 100, marginBottom: 20, display: "flex" }}>🖐️</div>
+          <div style={{ fontSize: 48, fontWeight: 700, color: "white", display: "flex" }}>
+            PalmJob
+          </div>
+          <div style={{ fontSize: 24, color: "rgba(255,255,255,0.8)", marginTop: 16, display: "flex" }}>
+            손금으로 찾는 나만의 이색 직업
+          </div>
+        </div>
+      ),
+      { width: WIDTH, height: HEIGHT }
+    );
   }
 }
-
