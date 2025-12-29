@@ -20,5 +20,5 @@ primary_region = 'nrt'
 
 [env]
   NODE_ENV = "production"
-  NEXT_PUBLIC_BASE_URL = "https://palmjob.fly.dev"
+  NEXT_PUBLIC_BASE_URL = "https://palm.gary-world.app"
 
