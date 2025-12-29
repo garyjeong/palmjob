@@ -39,13 +39,18 @@ const PROMPT_FILE_PATH = path.join(
 const PROMPT_FALLBACK = `Create a single centered 3D {{GENDER}} character illustration for the job title "{{JOB_TITLE}}".
 Square 1:1. Purple-to-pink gradient background with subtle palm line pattern. Soft studio lighting. No text, no logos, no watermark.`;
 
+// 개발 환경에서는 캐시 비활성화
+const isDev = process.env.NODE_ENV === "development";
 let cachedPromptTemplate: string | null = null;
 
 async function getPromptTemplate(): Promise<string> {
-  if (cachedPromptTemplate) return cachedPromptTemplate;
+  // 개발 환경에서는 항상 새로 로드
+  if (cachedPromptTemplate && !isDev) return cachedPromptTemplate;
 
   try {
-    cachedPromptTemplate = await readFile(PROMPT_FILE_PATH, "utf8");
+    const template = await readFile(PROMPT_FILE_PATH, "utf8");
+    console.log(`[dalle] Loaded prompt template (${template.length} chars)`);
+    cachedPromptTemplate = template;
   } catch (error) {
     console.warn(
       `[dalle] Failed to read prompt file at ${PROMPT_FILE_PATH}. Using fallback prompt.`,
@@ -91,7 +96,7 @@ export async function generateJobImage(
       .replace(/\{\{JOB_TITLE\}\}/g, jobTitle.trim())
       .replace(/\{\{GENDER\}\}/g, genderDesc);
 
-    console.log(`Generating image for job: ${jobTitle} (${gender})`);
+    console.log(`Generating image for job: ${jobTitle} (${gender}), prompt length: ${prompt.length}`);
 
     const response = await fetch(OPENAI_API_URL, {
       method: "POST",
