@@ -1,0 +1,45 @@
+PalmJob Job Character Image Prompt (Template)
+
+ROLE / GOAL
+- Create a single square (1:1) hero image for PalmJob, a playful palm-reading job recommendation service.
+- The image must visually represent the job title: "{{JOB_TITLE}}".
+- The image is used as a result card illustration, so it should be clean, readable, and consistent across different jobs.
+
+SUBJECT (MAIN)
+- One friendly, whimsical 3D character (single subject only).
+- The character clearly embodies the essence of "{{JOB_TITLE}}" via outfit, props, posture, and small symbolic details.
+- Interpret the job creatively (it can be slightly fantastical), but keep the design universally appealing.
+
+CHARACTER DESIGN
+- Stylized 3D “toy / figurine” look (smooth materials, soft bevels, high quality).
+- Warm facial expression, big expressive eyes, approachable vibe.
+- Outfit: a simplified uniform/costume that hints at "{{JOB_TITLE}}".
+- Props: 1–3 iconic tools/objects that hint at "{{JOB_TITLE}}" (no brand logos).
+- Avoid realism that looks like a real person photo; keep it clearly illustrated / rendered.
+
+SCENE / BACKGROUND
+- Background: dreamy gradient using PalmJob brand colors:
+  - Primary purple #7C3AED
+  - Accent pink #EC4899
+  - Secondary amber #F59E0B (very subtle highlight only)
+- Subtle “palm line” pattern overlay in the background (decorative, low opacity).
+- Light sparkles / particles to add a magical feeling (subtle, not cluttered).
+
+COMPOSITION
+- Centered subject, symmetrical composition, generous safe margins (do not crop the character).
+- Clean silhouette. The job-defining props must be readable at thumbnail size.
+- No text elements anywhere in the image.
+
+CAMERA / RENDER (GUIDANCE)
+- Studio-quality 3D render with global illumination.
+- Soft key light + gentle rim light, mild ambient occlusion for depth.
+- Sharp but not harsh. No heavy film grain.
+- 1024x1024, crisp details, social-card ready.
+
+NEGATIVE CONSTRAINTS (MUST NOT INCLUDE)
+- No text, letters, numbers, captions, signatures, watermarks, or logos.
+- No UI elements, frames, borders, or mockups.
+- No copyrighted / recognizable characters.
+- No extra characters, no crowds, no hands/limbs duplication artifacts.
+- No background clutter; keep it simple and clean.
+

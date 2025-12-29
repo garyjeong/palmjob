@@ -2,8 +2,11 @@
  * DALL-E 이미지 생성
  *
  * 직업에 맞는 캐릭터/일러스트 이미지를 생성합니다.
- * 표준 프롬프트 템플릿 + 직업명 대입 구조
+ * 표준 프롬프트 템플릿(.prompt) + 직업명 replace 구조
  */
+
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_API_URL = "https://api.openai.com/v1/images/generations";
@@ -24,29 +27,34 @@ export interface GenerateImageResult {
  * 배경: 손금 패턴이 있는 보라색 그라데이션
  * 구성: 직업을 상징하는 도구/의상을 가진 캐릭터
  */
-const PROMPT_TEMPLATE = `Create a magical and whimsical 3D character illustration for "{JOB_TITLE}".
+const PROMPT_FILE_PATH = path.join(
+  process.cwd(),
+  "src",
+  "prompts",
+  "job-character.prompt"
+);
 
-Visual Style:
-- Pixar/Disney-inspired 3D character design
-- Soft, dreamy lighting with magical glow effects
-- Purple-to-pink gradient background with subtle sparkles
-- Palm line patterns subtly integrated into the background as decorative elements
-- Square composition (1:1 ratio)
+// 파일 로딩 실패 시를 대비한 폴백(최소 프롬프트)
+const PROMPT_FALLBACK = `Create a single centered 3D character illustration for the job title "{{JOB_TITLE}}".
+Square 1:1. Purple-to-pink gradient background with subtle palm line pattern. Soft studio lighting. No text, no logos, no watermark.`;
 
-Character Design:
-- Friendly, approachable character with warm expression
-- Wearing stylized outfit or uniform that represents the job
-- Holding or surrounded by symbolic tools/objects of the profession
-- Slight floating or magical pose to convey whimsy
-- Big expressive eyes with a gentle smile
+let cachedPromptTemplate: string | null = null;
 
-Atmosphere:
-- Mystical and enchanting mood
-- Soft particle effects like stars or floating lights
-- Clean, professional quality suitable for social media cards
-- No text or letters in the image
+async function getPromptTemplate(): Promise<string> {
+  if (cachedPromptTemplate) return cachedPromptTemplate;
 
-The character should embody the essence of "{JOB_TITLE}" in a creative, fantastical way that feels both unique and universally appealing.`;
+  try {
+    cachedPromptTemplate = await readFile(PROMPT_FILE_PATH, "utf8");
+  } catch (error) {
+    console.warn(
+      `[dalle] Failed to read prompt file at ${PROMPT_FILE_PATH}. Using fallback prompt.`,
+      error
+    );
+    cachedPromptTemplate = PROMPT_FALLBACK;
+  }
+
+  return cachedPromptTemplate;
+}
 
 /**
  * 직업 캐릭터 이미지 생성
@@ -66,8 +74,9 @@ export async function generateJobImage(
   }
 
   try {
-    // 프롬프트 생성 (직업명 대입)
-    const prompt = PROMPT_TEMPLATE.replace(/\{JOB_TITLE\}/g, jobTitle);
+    // 프롬프트 생성 (직업명 replace)
+    const template = await getPromptTemplate();
+    const prompt = template.replace(/\{\{JOB_TITLE\}\}/g, jobTitle.trim());
 
     console.log(`Generating image for job: ${jobTitle}`);
 
