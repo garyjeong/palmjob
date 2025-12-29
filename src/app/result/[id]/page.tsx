@@ -146,7 +146,11 @@ export default function ResultPage() {
             )}
             
             {/* 카드 내용 */}
-            <div className="relative h-full flex flex-col items-center justify-center p-6 text-center">
+            <div className={`relative h-full flex flex-col p-6 text-center ${
+              result.job.cardImageUrl 
+                ? "justify-end pb-20" // DALL-E 이미지가 있을 때: 하단 정렬, 워터마크 공간 확보
+                : "justify-center pb-16" // DALL-E 이미지가 없을 때: 중앙 정렬, 워터마크 공간 확보
+            }`}>
               {/* DALL-E 이미지가 없을 때만 이모지 표시 */}
               {!result.job.cardImageUrl && (
                 <div className="text-7xl mb-4 animate-float">
@@ -155,21 +159,33 @@ export default function ResultPage() {
               )}
               
               {/* 직업 타이틀 */}
-              <h3 className={`text-2xl font-bold mb-2 ${result.job.cardImageUrl ? "text-white drop-shadow-lg mt-auto" : "text-[var(--color-text-primary)]"}`}>
+              <h3 className={`text-2xl font-bold mb-2 ${
+                result.job.cardImageUrl 
+                  ? "text-white drop-shadow-lg" 
+                  : "text-[var(--color-text-primary)]"
+              }`}>
                 {result.job.title}
               </h3>
               
               {/* 짧은 코멘트 */}
               {result.job.shortComment && (
-                <p className={`text-sm px-4 py-2 rounded-full ${result.job.cardImageUrl ? "text-white/90 bg-black/30" : "text-[var(--color-text-secondary)] bg-[var(--color-surface)]/80"}`}>
+                <p className={`text-sm px-4 py-2 rounded-full ${
+                  result.job.cardImageUrl 
+                    ? "text-white/90 bg-black/30" 
+                    : "text-[var(--color-text-secondary)] bg-[var(--color-surface)]/80"
+                }`}>
                   {result.job.shortComment}
                 </p>
               )}
             </div>
             
             {/* 브랜드 워터마크 */}
-            <div className="absolute bottom-4 left-0 right-0 text-center">
-              <span className={`text-xs px-3 py-1 rounded-full ${result.job.cardImageUrl ? "text-white/80 bg-black/30" : "text-[var(--color-text-muted)] bg-[var(--color-surface)]/60"}`}>
+            <div className="absolute bottom-4 left-0 right-0 text-center z-10 pointer-events-none">
+              <span className={`text-xs px-3 py-1 rounded-full ${
+                result.job.cardImageUrl 
+                  ? "text-white/80 bg-black/30" 
+                  : "text-[var(--color-text-muted)] bg-[var(--color-surface)]/60"
+              }`}>
                 🖐️ PalmJob
               </span>
             </div>
