@@ -16,7 +16,7 @@ const notoSansKR = Noto_Sans_KR({
 });
 
 const baseUrl =
-  process.env.NEXT_PUBLIC_BASE_URL || "https://palmjob.com";
+  process.env.NEXT_PUBLIC_BASE_URL || "https://palm.gary-world.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
