@@ -1,95 +1,36 @@
-PalmJob Job Character Image Prompt (Template)
+Create a single 1:1 square 3D character illustration for "{{JOB_TITLE}}".
 
-ROLE / GOAL
-- Create a single square (1:1) hero image for PalmJob, a playful palm-reading job recommendation service.
-- The image must visually represent the unique job title: "{{JOB_TITLE}}".
-- The image is used as a result card illustration, so it should be clean, readable, and consistent across different jobs.
+STYLE
+- Pixar/Disney animation style, 3D render
+- Stylized toy-like character (Funko Pop aesthetic)
+- NOT hyperrealistic, NOT anime
 
-STYLE REFERENCE
-- Art direction: Pixar / Disney / Dreamworks animation style
-- 3D render quality: Nintendo Switch game cutscene or high-end mobile game character
-- NOT hyperrealistic, NOT anime, NOT flat 2D illustration
-- Warm, inviting, universally appealing aesthetic
+CHARACTER
+- One friendly {{GENDER}} 3D character
+- Big expressive eyes, warm smile, approachable vibe
+- Stylized proportions (large head, compact body)
+- Outfit and 1-2 props clearly representing "{{JOB_TITLE}}"
+- Character should look like they love their job
 
-SUBJECT (MAIN)
-- One friendly, whimsical 3D {{GENDER}} character (single subject only).
-- The character clearly embodies the essence of "{{JOB_TITLE}}" via outfit, props, posture, and small symbolic details.
-- Interpret the job creatively (it can be slightly fantastical), but keep the design universally appealing.
-- The character should feel like they genuinely love their job.
-
-CHARACTER DESIGN
-- **Gender**: {{GENDER}} character - design should clearly reflect this while maintaining the stylized, approachable aesthetic
-- **Face & Expression**: Big expressive eyes, warm genuine smile, friendly and approachable vibe
-- **Body Type**: Stylized proportions (slightly large head, compact body), NOT realistic human proportions
-- **Skin/Appearance**: Diverse representation welcome (vary skin tones, features), but keep stylized/illustrated look
-- **Material**: Smooth, soft-beveled surfaces like a high-quality vinyl toy or Funko Pop figure
-
-OUTFIT & PROPS GUIDE
-- **Outfit**: Simplified, stylized uniform/costume that hints at "{{JOB_TITLE}}"
-  - Use color coding and iconic silhouettes rather than hyper-detailed textures
-  - Avoid real-world brand logos or copyrighted designs
-- **Props**: 1~3 iconic tools/objects that symbolize "{{JOB_TITLE}}"
-  - Props should be easily recognizable even at thumbnail size
-  - Floating or held naturally by the character
-
-### Job Category Hints (for props/outfit inspiration)
-- **미래/기술 직업**: 홀로그램, 로봇 부품, VR 고글, 우주복 요소, 디지털 파티클
-- **감성/치유 직업**: 하트, 부드러운 빛, 따뜻한 색상의 오브젝트, 포옹 제스처
-- **자연/환경 직업**: 나뭇잎, 별, 구름, 무지개, 자연 요소들
-- **창의/예술 직업**: 붓, 팔레트, 음표, 빛줄기, 추상적 형태
-- **꿈/신비 직업**: 달, 별, 안개, 수정구, 몽환적 파티클
-- **시간/기억 직업**: 시계, 모래시계, 빛나는 조각들, 필름 프레임
-- **행운/일상 직업**: 클로버, 주사위, 별똥별, 반짝이는 오브젝트
-
-SCENE / BACKGROUND
-- **Background Style**: Dreamy, soft gradient using PalmJob brand colors
-- **Brand Color Palette**:
-  - Primary: Purple #7C3AED (main gradient color)
-  - Accent: Pink #EC4899 (gradient blend)
-  - Highlight: Amber #F59E0B (very subtle sparkle accents only)
-- **Gradient Direction**: Top-left to bottom-right, smooth transition
-- **Decorative Elements**:
-  - Subtle "palm line" pattern overlay (very low opacity, background only)
-  - Soft sparkles / light particles (magical feeling, not cluttered)
-  - Optional: Gentle glow behind character for depth
+BACKGROUND
+- Dreamy purple (#7C3AED) to pink (#EC4899) gradient
+- Subtle palm line pattern overlay (very low opacity)
+- Soft sparkles and magical particles
+- Simple, not cluttered
 
 COMPOSITION
-- **Framing**: Centered subject, symmetrical composition
-- **Safe Margins**: Generous padding (do not crop the character)
-- **Silhouette Clarity**: Job-defining props must be readable at thumbnail size (< 200px)
-- **Depth**: Character slightly in front of background elements
-- **Text**: Absolutely NO text elements anywhere in the image
+- Centered subject with generous margins
+- Props readable at thumbnail size
+- Slightly below eye level camera angle
 
-CAMERA / RENDER
-- **Camera Angle**: Slightly below eye level, looking up at character (heroic feel)
-- **Lens**: Standard focal length, no distortion
-- **Render Style**: 
-  - Studio-quality 3D render
-  - Global illumination with soft shadows
-  - Octane Render / Unreal Engine 5 / Cinema 4D quality
-- **Lighting Setup**:
-  - Key light: Soft, warm, from upper-left (45°)
-  - Fill light: Cool purple tint, from right side
-  - Rim light: Gentle edge highlight for depth separation
-  - Ambient occlusion: Mild, for grounding
-- **Post-processing**: 
-  - Subtle bloom on bright areas
-  - No heavy film grain
-  - Crisp but not harsh
+RENDER QUALITY
+- Studio-quality 3D render, global illumination
+- Soft key light from upper-left, rim light for depth
+- Octane render quality, 8K detail
 
-TECHNICAL SPECS
-- Resolution: 1024x1024 pixels
-- Aspect Ratio: 1:1 (Square)
-- Output: Clean, social-card ready
-- Quality Keywords: photorealistic 3D render, octane render, unreal engine 5, ray tracing, volumetric lighting, 8K quality
-
-NEGATIVE CONSTRAINTS (MUST NOT INCLUDE)
-- ❌ No text, letters, numbers, captions, signatures, watermarks, or logos
-- ❌ No UI elements, frames, borders, or mockups
-- ❌ No copyrighted / recognizable characters (Mickey Mouse, Mario, etc.)
-- ❌ No extra characters, no crowds, no duplicated limbs or artifacts
-- ❌ No background clutter; keep it simple and clean
-- ❌ No realistic human photos or hyperrealistic renders
-- ❌ No dark, scary, or negative imagery
-- ❌ No weapons, violence, or inappropriate content
-
+MUST NOT INCLUDE
+- No text, letters, numbers, watermarks, logos
+- No UI elements, frames, borders
+- No copyrighted characters
+- No extra characters or crowds
+- No dark, scary, or violent imagery
