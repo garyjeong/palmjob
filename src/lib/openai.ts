@@ -5,12 +5,26 @@
  */
 
 import { JobResult } from "@/types";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
-// 분석 프롬프트 (양손 분석용)
-const SYSTEM_PROMPT = `당신은 재미있고 창의적인 손금 해석 전문가입니다. 양손(왼손과 오른손)의 손바닥 사진을 보고 그 사람에게 어울리는 독특한 "이색 직업"을 추천해주세요.
+type PalmPromptParts = {
+  system: string;
+  user: string;
+};
+
+const PROMPT_FILE_PATH = path.join(
+  process.cwd(),
+  "src",
+  "prompts",
+  "palm-analysis.prompt"
+);
+
+// 파일 로딩 실패 시를 대비한 폴백(기존 프롬프트와 동일)
+const FALLBACK_SYSTEM_PROMPT = `당신은 재미있고 창의적인 손금 해석 전문가입니다. 양손(왼손과 오른손)의 손바닥 사진을 보고 그 사람에게 어울리는 독특한 "이색 직업"을 추천해주세요.
 
 ## 손금 해석 가이드
 손금에서 보이는 특징들을 창의적으로 해석하세요:
@@ -47,9 +61,57 @@ const SYSTEM_PROMPT = `당신은 재미있고 창의적인 손금 해석 전문�
 - 2문단: 분석을 바탕으로 해당 직업이 어울리는 이유 설명
 - 따뜻하고 격려하는 톤으로 마무리`;
 
-const USER_PROMPT = `이 두 손바닥 사진(왼손과 오른손)을 함께 보고 어울리는 이색 직업을 추천해주세요. 
+const FALLBACK_USER_PROMPT = `이 두 손바닥 사진(왼손과 오른손)을 함께 보고 어울리는 이색 직업을 추천해주세요.
 첫 번째 이미지는 왼손, 두 번째 이미지는 오른손입니다.
 양손의 손금을 종합하여 분석해주세요. JSON 형식으로만 응답하세요.`;
+
+let cachedPalmPromptParts: PalmPromptParts | null = null;
+
+function parsePalmPromptFile(contents: string): PalmPromptParts {
+  const systemMarker = "===SYSTEM===";
+  const userMarker = "===USER===";
+  const systemIdx = contents.indexOf(systemMarker);
+  const userIdx = contents.indexOf(userMarker);
+
+  if (systemIdx === -1 || userIdx === -1 || userIdx <= systemIdx) {
+    throw new Error(
+      "Invalid palm-analysis.prompt format. Expected markers: ===SYSTEM=== and ===USER==="
+    );
+  }
+
+  const system = contents
+    .slice(systemIdx + systemMarker.length, userIdx)
+    .trim();
+  const user = contents.slice(userIdx + userMarker.length).trim();
+
+  if (!system || !user) {
+    throw new Error(
+      "Invalid palm-analysis.prompt format. SYSTEM/USER sections must not be empty."
+    );
+  }
+
+  return { system, user };
+}
+
+async function getPalmPromptParts(): Promise<PalmPromptParts> {
+  if (cachedPalmPromptParts) return cachedPalmPromptParts;
+
+  try {
+    const raw = await readFile(PROMPT_FILE_PATH, "utf8");
+    cachedPalmPromptParts = parsePalmPromptFile(raw);
+  } catch (error) {
+    console.warn(
+      `[openai] Failed to read/parse prompt file at ${PROMPT_FILE_PATH}. Using fallback prompts.`,
+      error
+    );
+    cachedPalmPromptParts = {
+      system: FALLBACK_SYSTEM_PROMPT,
+      user: FALLBACK_USER_PROMPT,
+    };
+  }
+
+  return cachedPalmPromptParts;
+}
 
 export interface AnalyzeImagesResult {
   success: boolean;
@@ -73,6 +135,8 @@ export async function analyzeImages(
   }
 
   try {
+    const { system, user } = await getPalmPromptParts();
+
     const formatImage = (base64: string) =>
       base64.startsWith("data:")
         ? base64
@@ -89,14 +153,14 @@ export async function analyzeImages(
         messages: [
           {
             role: "system",
-            content: SYSTEM_PROMPT,
+            content: system,
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: USER_PROMPT,
+                text: user,
               },
               {
                 type: "image_url",
