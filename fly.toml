@@ -1,0 +1,24 @@
+# fly.toml - PalmJob Fly.io Configuration
+
+app = 'palmjob'
+primary_region = 'nrt'
+
+[build]
+
+[http_service]
+  internal_port = 4000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+[env]
+  NODE_ENV = "production"
+  NEXT_PUBLIC_BASE_URL = "https://palmjob.fly.dev"
+
