@@ -6,3 +6,6 @@ export type { UploadAreaProps } from "./UploadArea";
 
 export { DualUploadArea } from "./DualUploadArea";
 export type { DualUploadAreaProps } from "./DualUploadArea";
+
+export { GenderSelector } from "./GenderSelector";
+export type { GenderSelectorProps } from "./GenderSelector";

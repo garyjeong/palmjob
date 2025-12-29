@@ -2,11 +2,12 @@
  * DALL-E 이미지 생성
  *
  * 직업에 맞는 캐릭터/일러스트 이미지를 생성합니다.
- * 표준 프롬프트 템플릿(.prompt) + 직업명 replace 구조
+ * 표준 프롬프트 템플릿(.prompt) + 직업명/성별 replace 구조
  */
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { Gender } from "@/types";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_API_URL = "https://api.openai.com/v1/images/generations";
@@ -35,7 +36,7 @@ const PROMPT_FILE_PATH = path.join(
 );
 
 // 파일 로딩 실패 시를 대비한 폴백(최소 프롬프트)
-const PROMPT_FALLBACK = `Create a single centered 3D character illustration for the job title "{{JOB_TITLE}}".
+const PROMPT_FALLBACK = `Create a single centered 3D {{GENDER}} character illustration for the job title "{{JOB_TITLE}}".
 Square 1:1. Purple-to-pink gradient background with subtle palm line pattern. Soft studio lighting. No text, no logos, no watermark.`;
 
 let cachedPromptTemplate: string | null = null;
@@ -57,13 +58,22 @@ async function getPromptTemplate(): Promise<string> {
 }
 
 /**
+ * 성별을 영어 설명으로 변환
+ */
+function getGenderDescription(gender: Gender): string {
+  return gender === "male" ? "male" : "female";
+}
+
+/**
  * 직업 캐릭터 이미지 생성
  *
  * @param jobTitle - 직업명 (한글)
+ * @param gender - 성별 (male | female)
  * @returns 생성된 이미지 URL
  */
 export async function generateJobImage(
-  jobTitle: string
+  jobTitle: string,
+  gender: Gender
 ): Promise<GenerateImageResult> {
   if (!OPENAI_API_KEY) {
     console.error("OPENAI_API_KEY is not set");
@@ -74,11 +84,14 @@ export async function generateJobImage(
   }
 
   try {
-    // 프롬프트 생성 (직업명 replace)
+    // 프롬프트 생성 (직업명 + 성별 replace)
     const template = await getPromptTemplate();
-    const prompt = template.replace(/\{\{JOB_TITLE\}\}/g, jobTitle.trim());
+    const genderDesc = getGenderDescription(gender);
+    const prompt = template
+      .replace(/\{\{JOB_TITLE\}\}/g, jobTitle.trim())
+      .replace(/\{\{GENDER\}\}/g, genderDesc);
 
-    console.log(`Generating image for job: ${jobTitle}`);
+    console.log(`Generating image for job: ${jobTitle} (${gender})`);
 
     const response = await fetch(OPENAI_API_URL, {
       method: "POST",
@@ -115,7 +128,7 @@ export async function generateJobImage(
       };
     }
 
-    console.log(`Image generated successfully for: ${jobTitle}`);
+    console.log(`Image generated successfully for: ${jobTitle} (${gender})`);
 
     return {
       success: true,
@@ -157,4 +170,3 @@ export function getJobEmoji(title: string): string {
 
   return emojiMap[title] || "✨";
 }
-

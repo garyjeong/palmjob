@@ -1,6 +1,9 @@
 // 손 선택 타입
 export type HandType = "left" | "right";
 
+// 성별 타입
+export type Gender = "male" | "female";
+
 // 분석 상태 타입
 export type AnalysisStatus = "pending" | "analyzing" | "completed" | "failed";
 
@@ -14,6 +17,7 @@ export interface AnalyzeRequest {
 export interface AnalysisResult {
   id: string;
   status: AnalysisStatus;
+  gender?: Gender;
   job?: JobResult;
   error?: string;
   createdAt: string;

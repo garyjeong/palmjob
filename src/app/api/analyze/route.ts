@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAnalysis, updateAnalysisStatus } from "@/lib/redis";
 import { analyzeImages, getDefaultResult } from "@/lib/openai";
 import { generateJobImage } from "@/lib/dalle";
+import { Gender } from "@/types";
 
 // 고유 ID 생성
 function generateId(): string {
@@ -19,8 +20,17 @@ async function fileToBase64(file: File): Promise<string> {
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
+    const gender = formData.get("gender") as Gender | null;
     const leftImage = formData.get("leftImage") as File;
     const rightImage = formData.get("rightImage") as File;
+
+    // 유효성 검사 - 성별 필수
+    if (!gender || (gender !== "male" && gender !== "female")) {
+      return NextResponse.json(
+        { error: "성별을 선택해주세요." },
+        { status: 400 }
+      );
+    }
 
     // 유효성 검사 - 양손 이미지 모두 필요
     if (!leftImage || !(leftImage instanceof File)) {
@@ -75,7 +85,7 @@ export async function POST(request: NextRequest) {
     await updateAnalysisStatus(id, "analyzing");
 
     // 비동기로 분석 수행 (백그라운드)
-    processAnalysis(id, leftImage, rightImage).catch(console.error);
+    processAnalysis(id, leftImage, rightImage, gender).catch(console.error);
 
     // 즉시 ID 반환 (클라이언트는 폴링으로 결과 확인)
     return NextResponse.json({ id, status: "analyzing" });
@@ -89,7 +99,12 @@ export async function POST(request: NextRequest) {
 }
 
 // 백그라운드 분석 처리
-async function processAnalysis(id: string, leftImage: File, rightImage: File) {
+async function processAnalysis(
+  id: string,
+  leftImage: File,
+  rightImage: File,
+  gender: Gender
+) {
   try {
     // 양손 이미지를 Base64로 변환
     const [leftBase64, rightBase64] = await Promise.all([
@@ -102,10 +117,10 @@ async function processAnalysis(id: string, leftImage: File, rightImage: File) {
 
     if (result.success && result.job) {
       // DALL-E로 직업 캐릭터 이미지 생성 (선택적, 실패해도 결과에 영향 없음)
-      const imageResult = await generateJobImage(result.job.title);
+      const imageResult = await generateJobImage(result.job.title, gender);
       if (imageResult.success && imageResult.imageUrl) {
         result.job.cardImageUrl = imageResult.imageUrl;
-        console.log(`Card image generated for: ${result.job.title}`);
+        console.log(`Card image generated for: ${result.job.title} (${gender})`);
       } else {
         console.warn("Card image generation failed, using emoji fallback");
       }

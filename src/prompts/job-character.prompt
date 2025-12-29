@@ -12,12 +12,13 @@ STYLE REFERENCE
 - Warm, inviting, universally appealing aesthetic
 
 SUBJECT (MAIN)
-- One friendly, whimsical 3D character (single subject only).
+- One friendly, whimsical 3D {{GENDER}} character (single subject only).
 - The character clearly embodies the essence of "{{JOB_TITLE}}" via outfit, props, posture, and small symbolic details.
 - Interpret the job creatively (it can be slightly fantastical), but keep the design universally appealing.
 - The character should feel like they genuinely love their job.
 
 CHARACTER DESIGN
+- **Gender**: {{GENDER}} character - design should clearly reflect this while maintaining the stylized, approachable aesthetic
 - **Face & Expression**: Big expressive eyes, warm genuine smile, friendly and approachable vibe
 - **Body Type**: Stylized proportions (slightly large head, compact body), NOT realistic human proportions
 - **Skin/Appearance**: Diverse representation welcome (vary skin tones, features), but keep stylized/illustrated look

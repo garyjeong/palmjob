@@ -3,23 +3,26 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms";
-import { DualUploadArea } from "@/components/molecules";
+import { DualUploadArea, GenderSelector } from "@/components/molecules";
+import { Gender } from "@/types";
 
 export default function UploadPage() {
   const router = useRouter();
+  const [gender, setGender] = useState<Gender | null>(null);
   const [leftImage, setLeftImage] = useState<File | null>(null);
   const [rightImage, setRightImage] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = useCallback(async () => {
-    if (!leftImage || !rightImage) return;
+    if (!gender || !leftImage || !rightImage) return;
 
     setIsUploading(true);
     setError(null);
 
     try {
       const formData = new FormData();
+      formData.append("gender", gender);
       formData.append("leftImage", leftImage);
       formData.append("rightImage", rightImage);
 
@@ -40,9 +43,9 @@ export default function UploadPage() {
     } finally {
       setIsUploading(false);
     }
-  }, [leftImage, rightImage, router]);
+  }, [gender, leftImage, rightImage, router]);
 
-  const isSubmitDisabled = !leftImage || !rightImage || isUploading;
+  const isSubmitDisabled = !gender || !leftImage || !rightImage || isUploading;
 
   return (
     <main className="min-h-dvh flex flex-col">
@@ -61,11 +64,23 @@ export default function UploadPage() {
       {/* 메인 콘텐츠 */}
       <div className="flex-1 px-4 pb-8">
         <div className="mx-auto max-w-md space-y-6">
-          {/* 양손 사진 업로드 */}
+          {/* 성별 선택 */}
           <section className="glass rounded-[var(--radius-xl)] p-5 shadow-[var(--shadow-sm)]">
             <h2 className="mb-4 text-sm font-semibold text-[var(--color-text-secondary)] flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center text-xs">
                 1
+              </span>
+              성별을 선택해주세요
+            </h2>
+            
+            <GenderSelector value={gender} onChange={setGender} />
+          </section>
+
+          {/* 양손 사진 업로드 */}
+          <section className="glass rounded-[var(--radius-xl)] p-5 shadow-[var(--shadow-sm)]">
+            <h2 className="mb-4 text-sm font-semibold text-[var(--color-text-secondary)] flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center text-xs">
+                2
               </span>
               양손 사진을 올려주세요
             </h2>
