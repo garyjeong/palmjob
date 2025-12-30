@@ -130,6 +130,13 @@ export default function RootLayout({
             __html: JSON.stringify(structuredData),
           }}
         />
+        {/* Google AdSense */}
+        <Script
+          id="adsbygoogle"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8862471412851871"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
         {children}
       </body>
     </html>
