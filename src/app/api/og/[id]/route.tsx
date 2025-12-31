@@ -66,8 +66,109 @@ export async function GET(
     // 결과가 없거나 직업 정보가 없는 경우 기본 이미지
     const title = job?.title || "나만의 이색 직업";
     const shortComment = job?.shortComment || "손금으로 찾아보세요!";
+    const cardImageUrl = job?.cardImageUrl;
     const emoji = getJobEmoji(title);
 
+    // cardImageUrl이 있으면 캐릭터 이미지 포함 레이아웃
+    if (cardImageUrl) {
+      return new ImageResponse(
+        (
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+              padding: 48,
+              gap: 48,
+            }}
+          >
+            {/* 좌측: 캐릭터 이미지 */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={cardImageUrl}
+                width={480}
+                height={480}
+                style={{
+                  objectFit: "cover",
+                  borderRadius: 24,
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+                }}
+              />
+            </div>
+
+            {/* 우측: 텍스트 정보 */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                justifyContent: "center",
+                flex: 1,
+                gap: 16,
+              }}
+            >
+              {/* 직업명 */}
+              <div
+                style={{
+                  fontSize: 56,
+                  fontWeight: 700,
+                  color: "white",
+                  display: "flex",
+                  lineHeight: 1.2,
+                }}
+              >
+                {title}
+              </div>
+
+              {/* 한 줄 코멘트 */}
+              <div
+                style={{
+                  fontSize: 28,
+                  color: "rgba(255,255,255,0.8)",
+                  display: "flex",
+                  marginTop: 8,
+                }}
+              >
+                {shortComment}
+              </div>
+
+              {/* 브랜드 */}
+              <div
+                style={{
+                  fontSize: 24,
+                  color: "rgba(255,255,255,0.5)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  marginTop: 24,
+                }}
+              >
+                <span>🖐️</span>
+                <span>PalmJob</span>
+              </div>
+            </div>
+          </div>
+        ),
+        {
+          width: WIDTH,
+          height: HEIGHT,
+        }
+      );
+    }
+
+    // cardImageUrl이 없으면 기존 텍스트 중심 레이아웃 (폴백)
     return new ImageResponse(
       (
         <div
@@ -78,7 +179,7 @@ export async function GET(
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            background: "#1a1a2e",
+            background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
             position: "relative",
           }}
         >
