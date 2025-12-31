@@ -2,77 +2,42 @@ Create a single 1:1 square 3D character illustration for "{{JOB_TITLE}}".
 
 STYLE
 - 3D render with slightly stylized realism
-- Chibi/chubby character proportions (like Crayon Shin-chan style) - large head, compact body, but with more realistic details than typical Funko Pop
-- NOT hyperrealistic, NOT anime, NOT overly cartoonish
+- Chibi proportions (like Crayon Shin-chan) - large head, compact body, with realistic details
 - Playful yet grounded, approachable and friendly
-- Subtle realism in facial features, clothing textures, and prop details
 
 CHARACTER
 - One friendly {{GENDER}} 3D character
-- Large expressive eyes (but not overly exaggerated), warm natural smile, approachable vibe
-- Chibi proportions: large head (about 1/3 of total height), compact body, but with realistic body proportions within that style
-- More realistic details: natural skin texture, realistic clothing folds, believable prop materials
+- Large expressive eyes, warm smile, approachable vibe
+- Chibi proportions: large head (1/3 of total height), compact body
+- Realistic details: natural skin texture, realistic clothing folds, believable props
 - Character should look like they love their job
-- Facial features should be expressive but not overly cartoonish
-- For abstract or paradoxical job titles (e.g., "침묵 DJ", "투명한 그림 그리는 사람"), use creative visual metaphors:
-  * Represent the concept symbolically (e.g., sound waves for silence, transparent/ghostly effect for invisible)
-  * Use props that suggest the paradox (e.g., headphones with muted symbol, empty picture frame)
-  * Maintain playful yet grounded interpretation
+- For abstract/paradoxical jobs (e.g., "침묵 DJ"), use creative visual metaphors
 
 OUTFIT AND PROPS
 - Outfit and 1-2 props clearly representing "{{JOB_TITLE}}"
-- For abstract jobs, use symbolic props:
-  * "침묵 DJ" → headphones with mute symbol, DJ turntable with sound waves
-  * "투명한 그림" → empty easel, transparent brush, ghostly paint effect
-  * "움직이지 않는 댄서" → dancer pose frozen in motion, motion lines suggesting stillness
-  * "서둘러 천천히" → hourglass with both fast and slow elements, clock with mixed speeds
+- For abstract jobs, use symbolic props creatively
 - Props should be readable at thumbnail size
-- Use creative visual metaphors for paradoxical or abstract concepts
 
 BACKGROUND
-- Background should represent the actual work environment or setting of the job
-- Examples:
-  * Professor/Teacher → classroom with blackboard and desk (simple, minimal)
-  * Chef → kitchen counter or cooking area (simple, minimal)
-  * Astronaut → space station interior or space scene (simple, minimal)
-  * Artist → studio with easel or art supplies (simple, minimal)
-  * Doctor → medical office or clinic setting (simple, minimal)
-- Keep background simple, minimal, and unobtrusive - not cluttered or busy
-- Use muted, neutral colors for background elements (avoid bright or saturated colors)
-- Background elements should be subtle and not compete with the character
-- Focus should remain on the character and props, but background should help identify the job
-- NO sparkles, NO magical particles, NO decorative patterns
-- NO palm line patterns or overlays
-- Background should feel like a real, believable work environment but simplified and minimal
+- Simple, minimal background representing the job's work environment
+- Examples: Professor → classroom, Chef → kitchen, Artist → studio
+- Muted, neutral colors - not cluttered
+- NO sparkles, NO magical particles, NO palm line patterns
+- Background should help identify the job but not compete with character
 
 COMPOSITION
 - Centered subject with generous margins
-- Props readable at thumbnail size
 - Slightly below eye level camera angle
-- Character should be the clear focal point
+- Character as clear focal point
 
 RENDER QUALITY
 - Studio-quality 3D render, global illumination
-- Natural, realistic lighting (soft key light from upper-left, subtle rim light for depth)
+- Natural lighting (soft key light from upper-left, subtle rim light)
 - Octane render quality, 8K detail
-- Clean, professional lighting - bright enough to see details but not overly dramatic
-- Lighting should feel natural and grounded, not fantastical
+- Clean, professional, grounded lighting
 
 MUST NOT INCLUDE
-- No text, letters, numbers, watermarks, logos
-- No UI elements, frames, borders
+- No text, watermarks, logos, UI elements
 - No copyrighted characters
-- No extra characters or crowds
+- No extra characters
 - No dark, scary, or violent imagery
-- No realistic or disturbing elements
-
-SPECIAL INSTRUCTIONS FOR ABSTRACT JOBS
-- For paradoxical or abstract job titles, interpret creatively:
-  * Use visual metaphors and symbols
-  * Maintain the playful, whimsical tone
-  * Make the concept understandable through props and character expression
-  * Don't take the paradox too literally - be creative and fun
-- Examples:
-  * "침묵 DJ" → Character with headphones, DJ setup, but with muted/quiet visual cues
-  * "투명한 그림" → Character with art supplies, but showing transparent/ghostly painting effect
-  * "서둘러 천천히" → Character with time-related props showing both urgency and calmness
