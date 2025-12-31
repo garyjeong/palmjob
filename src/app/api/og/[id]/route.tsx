@@ -1,8 +1,9 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
-import { getBaseUrlFromRequest } from "@/utils/getBaseUrl";
+import { getAnalysis } from "@/lib/redis";
 
-export const runtime = "edge";
+// Node.js Runtime 사용 (Edge에서 localhost fetch 문제 해결)
+export const runtime = "nodejs";
 
 // 이미지 크기 (SNS 권장)
 const WIDTH = 1200;
@@ -35,6 +36,21 @@ function getJobEmoji(title: string): string {
   return emojiMap[title] || "✨";
 }
 
+// Noto Sans KR 폰트 로드 (Google Fonts)
+async function loadNotoSansKR(): Promise<ArrayBuffer | null> {
+  try {
+    const response = await fetch(
+      "https://fonts.gstatic.com/s/notosanskr/v36/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzzuoyeLTq8H4hfeE.woff2"
+    );
+    if (response.ok) {
+      return await response.arrayBuffer();
+    }
+  } catch (error) {
+    console.error("Failed to load Noto Sans KR font:", error);
+  }
+  return null;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -46,28 +62,32 @@ export async function GET(
       return new Response("ID is required", { status: 400 });
     }
 
-    // Edge Runtime에서는 fetch API로 결과 데이터 가져오기
-    const baseUrl = getBaseUrlFromRequest(request);
-    let job = null;
-    
-    try {
-      const response = await fetch(`${baseUrl}/api/result/${id}`, {
-        headers: { "Content-Type": "application/json" },
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        job = data?.job;
-      }
-    } catch (fetchError) {
-      console.error("Failed to fetch result:", fetchError);
-    }
+    // Redis에서 직접 결과 데이터 가져오기
+    const result = await getAnalysis(id);
+    const job = result?.job;
+
+    // 폰트 로드
+    const fontData = await loadNotoSansKR();
 
     // 결과가 없거나 직업 정보가 없는 경우 기본 이미지
     const title = job?.title || "나만의 이색 직업";
     const shortComment = job?.shortComment || "손금으로 찾아보세요!";
     const cardImageUrl = job?.cardImageUrl;
     const emoji = getJobEmoji(title);
+
+    // 폰트 옵션 설정
+    const fontOptions = fontData ? {
+      fonts: [
+        {
+          name: "Noto Sans KR",
+          data: fontData,
+          style: "normal" as const,
+          weight: 400 as const,
+        },
+      ],
+    } : {};
+
+    const fontFamily = fontData ? "Noto Sans KR" : "system-ui, sans-serif";
 
     // cardImageUrl이 있으면 캐릭터 이미지 포함 레이아웃
     if (cardImageUrl) {
@@ -84,6 +104,7 @@ export async function GET(
               background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
               padding: 48,
               gap: 48,
+              fontFamily,
             }}
           >
             {/* 좌측: 캐릭터 이미지 */}
@@ -123,7 +144,7 @@ export async function GET(
               <div
                 style={{
                   fontSize: 56,
-                  fontWeight: 700,
+                  fontWeight: 400,
                   color: "white",
                   display: "flex",
                   lineHeight: 1.2,
@@ -164,6 +185,7 @@ export async function GET(
         {
           width: WIDTH,
           height: HEIGHT,
+          ...fontOptions,
         }
       );
     }
@@ -181,13 +203,14 @@ export async function GET(
             justifyContent: "center",
             background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
             position: "relative",
+            fontFamily,
           }}
         >
           {/* 직업 이모지 + 직업명 */}
           <div
             style={{
               fontSize: 52,
-              fontWeight: 700,
+              fontWeight: 400,
               color: "white",
               display: "flex",
               alignItems: "center",
@@ -231,6 +254,7 @@ export async function GET(
       {
         width: WIDTH,
         height: HEIGHT,
+        ...fontOptions,
       }
     );
   } catch (error) {
@@ -253,7 +277,7 @@ export async function GET(
           <div
             style={{
               fontSize: 52,
-              fontWeight: 700,
+              fontWeight: 400,
               color: "white",
               display: "flex",
               alignItems: "center",

@@ -6,7 +6,38 @@ export const runtime = "edge";
 const WIDTH = 1200;
 const HEIGHT = 630;
 
+// Noto Sans KR 폰트 로드 (Google Fonts)
+async function loadNotoSansKR(): Promise<ArrayBuffer | null> {
+  try {
+    const response = await fetch(
+      "https://fonts.gstatic.com/s/notosanskr/v36/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzzuoyeLTq8H4hfeE.woff2"
+    );
+    if (response.ok) {
+      return await response.arrayBuffer();
+    }
+  } catch (error) {
+    console.error("Failed to load Noto Sans KR font:", error);
+  }
+  return null;
+}
+
 export async function GET() {
+  const fontData = await loadNotoSansKR();
+
+  // 폰트 옵션 설정
+  const fontOptions = fontData ? {
+    fonts: [
+      {
+        name: "Noto Sans KR",
+        data: fontData,
+        style: "normal" as const,
+        weight: 400 as const,
+      },
+    ],
+  } : {};
+
+  const fontFamily = fontData ? "Noto Sans KR" : "system-ui, sans-serif";
+
   return new ImageResponse(
     (
       <div
@@ -17,15 +48,16 @@ export async function GET() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "#1a1a2e",
+          background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
           position: "relative",
+          fontFamily,
         }}
       >
         {/* 메인 타이틀 */}
         <div
           style={{
             fontSize: 52,
-            fontWeight: 700,
+            fontWeight: 400,
             color: "white",
             display: "flex",
             alignItems: "center",
@@ -55,7 +87,7 @@ export async function GET() {
     {
       width: WIDTH,
       height: HEIGHT,
+      ...fontOptions,
     }
   );
 }
-
