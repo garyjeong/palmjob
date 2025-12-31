@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button, Spinner } from "@/components/atoms";
 import { AnalysisResult } from "@/types";
 
@@ -122,15 +123,20 @@ export default function ResultPage() {
             {/* DALL-E 이미지가 있으면 표시, 없으면 기본 배경 */}
             {result.job.cardImageUrl ? (
               <>
-                {/* DALL-E 생성 이미지 */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                {/* DALL-E 생성 이미지 - Next.js Image로 최적화 */}
+                <Image
                   src={result.job.cardImageUrl}
                   alt={result.job.title}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 448px"
+                  className="object-cover"
+                  quality={85}
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                 />
                 {/* 오버레이 그라데이션 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
               </>
             ) : (
               <>
@@ -146,7 +152,7 @@ export default function ResultPage() {
             )}
             
             {/* 카드 내용 */}
-            <div className={`relative h-full flex flex-col p-6 text-center ${
+            <div className={`relative h-full flex flex-col p-6 text-center z-20 ${
               result.job.cardImageUrl 
                 ? "justify-end pb-20" // DALL-E 이미지가 있을 때: 하단 정렬, 워터마크 공간 확보
                 : "justify-center pb-16" // DALL-E 이미지가 없을 때: 중앙 정렬, 워터마크 공간 확보

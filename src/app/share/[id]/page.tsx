@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/atoms";
 import { getBaseUrl } from "@/utils/getBaseUrl";
@@ -131,15 +132,20 @@ export default async function SharePage({
             {/* DALL-E 이미지가 있으면 표시, 없으면 기본 배경 */}
             {result.job.cardImageUrl ? (
               <>
-                {/* DALL-E 생성 이미지 */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                {/* DALL-E 생성 이미지 - Next.js Image로 최적화 */}
+                <Image
                   src={result.job.cardImageUrl}
                   alt={result.job.title}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 448px"
+                  className="object-cover"
+                  quality={85}
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                 />
                 {/* 오버레이 그라데이션 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
               </>
             ) : (
               <>
@@ -155,7 +161,7 @@ export default async function SharePage({
             )}
 
             {/* 카드 내용 */}
-            <div className="relative h-full flex flex-col items-center justify-center p-6 text-center">
+            <div className="relative h-full flex flex-col items-center justify-center p-6 text-center z-20">
               {/* DALL-E 이미지가 없을 때만 이모지 표시 */}
               {!result.job.cardImageUrl && (
                 <div className="text-7xl mb-4 animate-float">
