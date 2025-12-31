@@ -140,7 +140,7 @@ export default async function RootLayout({
           style={{ display: "none" }}
           data-ad-unit="DAN-aIL4mru17i2g90vg"
           data-ad-width="320"
-          data-ad-height="50"
+          data-ad-height="100"
         />
         <Script
           id="kakao-ad"

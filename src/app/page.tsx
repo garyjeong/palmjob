@@ -66,7 +66,7 @@ export default function UploadPage() {
             style={{ display: "none" }}
             data-ad-unit="DAN-aIL4mru17i2g90vg"
             data-ad-width="320"
-            data-ad-height="50"
+            data-ad-height="100"
           />
         </div>
       </header>
