@@ -1,5 +1,6 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
+import { getBaseUrlFromRequest } from "@/utils/getBaseUrl";
 
 export const runtime = "edge";
 
@@ -46,7 +47,7 @@ export async function GET(
     }
 
     // Edge Runtime에서는 fetch API로 결과 데이터 가져오기
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://palm.gary-world.app";
+    const baseUrl = getBaseUrlFromRequest(request);
     let job = null;
     
     try {

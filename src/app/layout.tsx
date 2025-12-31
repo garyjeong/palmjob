@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Noto_Sans_KR, Outfit } from "next/font/google";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -15,77 +16,79 @@ const notoSansKR = Noto_Sans_KR({
   weight: ["400", "500", "700"],
 });
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_BASE_URL || "https://palm.gary-world.app";
+// 동적 메타데이터 생성
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = await getBaseUrl();
 
-export const metadata: Metadata = {
-  metadataBase: new URL(baseUrl),
-  title: {
-    default: "PalmJob - 손금으로 찾는 나만의 이색 직업",
-    template: "%s | PalmJob",
-  },
-  description:
-    "손바닥 사진을 업로드하면 AI가 분석하여 당신에게 어울리는 이색 직업을 추천해 드립니다. 재미있고 창의적인 손금 해석으로 나만의 특별한 직업을 발견해보세요!",
-  keywords: [
-    "손금",
-    "손금 분석",
-    "직업 추천",
-    "이색 직업",
-    "AI 손금",
-    "운세",
-    "재미",
-    "테스트",
-    "AI",
-    "손바닥",
-    "직업 테스트",
-  ],
-  authors: [{ name: "PalmJob" }],
-  creator: "PalmJob",
-  publisher: "PalmJob",
-  alternates: {
-    canonical: baseUrl,
-  },
-  openGraph: {
-    type: "website",
-    locale: "ko_KR",
-    url: baseUrl,
-    siteName: "PalmJob",
-    title: "PalmJob - 손금으로 찾는 나만의 이색 직업",
-    description: "손바닥 사진으로 나만의 이색 직업을 찾아보세요! 🖐️✨",
-    images: [
-      {
-        url: `${baseUrl}/api/og`,
-        width: 1200,
-        height: 630,
-        alt: "PalmJob - 손금으로 찾는 나만의 이색 직업",
-      },
+  return {
+    metadataBase: new URL(baseUrl),
+    title: {
+      default: "PalmJob - 손금으로 찾는 나만의 이색 직업",
+      template: "%s | PalmJob",
+    },
+    description:
+      "손바닥 사진을 업로드하면 AI가 분석하여 당신에게 어울리는 이색 직업을 추천해 드립니다. 재미있고 창의적인 손금 해석으로 나만의 특별한 직업을 발견해보세요!",
+    keywords: [
+      "손금",
+      "손금 분석",
+      "직업 추천",
+      "이색 직업",
+      "AI 손금",
+      "운세",
+      "재미",
+      "테스트",
+      "AI",
+      "손바닥",
+      "직업 테스트",
     ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "PalmJob - 손금으로 찾는 나만의 이색 직업",
-    description: "손바닥 사진으로 나만의 이색 직업을 찾아보세요! 🖐️✨",
-    images: [`${baseUrl}/api/og`],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+    authors: [{ name: "PalmJob" }],
+    creator: "PalmJob",
+    publisher: "PalmJob",
+    alternates: {
+      canonical: baseUrl,
+    },
+    openGraph: {
+      type: "website",
+      locale: "ko_KR",
+      url: baseUrl,
+      siteName: "PalmJob",
+      title: "PalmJob - 손금으로 찾는 나만의 이색 직업",
+      description: "손바닥 사진으로 나만의 이색 직업을 찾아보세요! 🖐️✨",
+      images: [
+        {
+          url: `${baseUrl}/api/og`,
+          width: 1200,
+          height: 630,
+          alt: "PalmJob - 손금으로 찾는 나만의 이색 직업",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "PalmJob - 손금으로 찾는 나만의 이색 직업",
+      description: "손바닥 사진으로 나만의 이색 직업을 찾아보세요! 🖐️✨",
+      images: [`${baseUrl}/api/og`],
+    },
+    robots: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
-  },
-  verification: {
-    // Google Search Console, Naver Search Advisor 등에서 제공하는 메타 태그를 여기에 추가
-    // google: "your-google-verification-code",
-    // other: {
-    //   "naver-site-verification": "your-naver-verification-code",
-    // },
-  },
-};
+    verification: {
+      // Google Search Console, Naver Search Advisor 등에서 제공하는 메타 태그를 여기에 추가
+      // google: "your-google-verification-code",
+      // other: {
+      //   "naver-site-verification": "your-naver-verification-code",
+      // },
+    },
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -95,11 +98,12 @@ export const viewport: Viewport = {
   themeColor: "#7c3aed",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const baseUrl = await getBaseUrl();
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
@@ -130,12 +134,18 @@ export default function RootLayout({
             __html: JSON.stringify(structuredData),
           }}
         />
-        {/* Google AdSense */}
+        {/* 카카오 광고 */}
+        <ins
+          className="kakao_ad_area"
+          style={{ display: "none" }}
+          data-ad-unit="DAN-aIL4mru17i2g90vg"
+          data-ad-width="320"
+          data-ad-height="50"
+        />
         <Script
-          id="adsbygoogle"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8862471412851871"
+          id="kakao-ad"
+          src="//t1.daumcdn.net/kas/static/ba.min.js"
           strategy="afterInteractive"
-          crossOrigin="anonymous"
         />
         {children}
       </body>

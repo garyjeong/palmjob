@@ -1,8 +1,8 @@
 import { MetadataRoute } from "next";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "https://palmjob.com";
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = await getBaseUrl();
 
   // 정적 페이지들
   const routes = [

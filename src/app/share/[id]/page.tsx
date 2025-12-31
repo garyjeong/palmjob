@@ -1,11 +1,12 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/atoms";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 // 결과 데이터 가져오기
 async function getResult(id: string) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const baseUrl = await getBaseUrl();
     const response = await fetch(`${baseUrl}/api/result/${id}`, {
       cache: "no-store",
     });
@@ -29,7 +30,7 @@ export async function generateMetadata({
   const { id } = await params;
   const result = await getResult(id);
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = await getBaseUrl();
   const ogImageUrl = `${baseUrl}/api/og/${id}`;
 
   if (!result?.job) {

@@ -59,6 +59,16 @@ export default function UploadPage() {
         <p className="text-xl md:text-2xl font-semibold text-[var(--color-text-primary)]">
           손금으로 찾는 나만의 이색 직업
         </p>
+        {/* 카카오 광고 */}
+        <div className="mt-4 flex justify-center">
+          <ins
+            className="kakao_ad_area"
+            style={{ display: "none" }}
+            data-ad-unit="DAN-aIL4mru17i2g90vg"
+            data-ad-width="320"
+            data-ad-height="50"
+          />
+        </div>
       </header>
 
       {/* 메인 콘텐츠 */}
