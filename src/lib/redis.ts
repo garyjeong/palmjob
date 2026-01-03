@@ -60,7 +60,8 @@ export async function updateAnalysisStatus(
   id: string,
   status: AnalysisStatus,
   job?: JobResult,
-  error?: string
+  error?: string,
+  progress?: number
 ): Promise<AnalysisResult | null> {
   const key = KEY_PREFIX + id;
   const data = await redis.get(key);
@@ -71,6 +72,7 @@ export async function updateAnalysisStatus(
   result.status = status;
   if (job) result.job = job;
   if (error) result.error = error;
+  if (progress !== undefined) result.progress = progress;
 
   // 기존 TTL 유지
   const ttl = await redis.ttl(key);

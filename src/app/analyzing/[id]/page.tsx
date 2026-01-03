@@ -24,19 +24,14 @@ export default function AnalyzingPage() {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  // 메시지 순환 및 프로그레스
+  // 메시지 순환
   useEffect(() => {
     const messageInterval = setInterval(() => {
       setMessageIndex((prev) => (prev + 1) % ANALYSIS_MESSAGES.length);
     }, 2500);
 
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => Math.min(prev + Math.random() * 15, 90));
-    }, 500);
-
     return () => {
       clearInterval(messageInterval);
-      clearInterval(progressInterval);
     };
   }, []);
 
@@ -60,6 +55,11 @@ export default function AnalyzingPage() {
         
         // 메인 페이지로 이동
         router.push("/");
+      } else if (result.status === "analyzing") {
+        // 진행률 업데이트 (서버에서 계산된 값 사용)
+        if (result.progress !== undefined) {
+          setProgress(result.progress);
+        }
       }
     } catch (err) {
       console.error("Status check failed:", err);

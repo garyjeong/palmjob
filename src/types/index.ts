@@ -20,6 +20,7 @@ export interface AnalysisResult {
   gender?: Gender;
   job?: JobResult;
   error?: string;
+  progress?: number; // 진행률 (0-100)
   createdAt: string;
   expiresAt: string;
 }

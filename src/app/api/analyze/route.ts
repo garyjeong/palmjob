@@ -85,8 +85,8 @@ export async function POST(request: NextRequest) {
     // 분석 ID를 openai 모듈에 설정 (프롬프트 로그 저장용)
     setAnalysisId(id);
 
-    // 분석 상태를 analyzing으로 업데이트
-    await updateAnalysisStatus(id, "analyzing");
+    // 분석 상태를 analyzing으로 업데이트 (진행률 0%로 시작)
+    await updateAnalysisStatus(id, "analyzing", undefined, undefined, 0);
 
     // 비동기로 분석 수행 (백그라운드)
     processAnalysis(id, leftImage, rightImage, gender).catch(console.error);
@@ -134,15 +134,20 @@ async function processAnalysis(
       const errorType = validation.errorType || "UNKNOWN";
       const errorMessage = validation.message || "손바닥 이미지 검증에 실패했습니다.";
       
-      await updateAnalysisStatus(id, "failed", undefined, errorType);
+      await updateAnalysisStatus(id, "failed", undefined, errorType, 0);
       console.log(`[Validation Failed] ID: ${id}, ErrorType: ${errorType}, Message: ${errorMessage}`);
       return; // 분석 API 호출하지 않음 (비용 절감)
     }
 
+    // 검증 완료: 30%
+    await updateAnalysisStatus(id, "analyzing", undefined, undefined, 30);
     console.log(`[Validation Passed] ID: ${id}, Proceeding to analysis`);
 
     // 검증 통과 시에만 분석 진행
     const result = await analyzeImages(leftBase64, rightBase64);
+    
+    // 분석 완료: 70%
+    await updateAnalysisStatus(id, "analyzing", undefined, undefined, 70);
 
     if (result.success && result.job) {
       // DALL-E로 직업 캐릭터 이미지 생성 (선택적, 실패해도 결과에 영향 없음)
@@ -170,18 +175,19 @@ async function processAnalysis(
         console.warn("Card image generation failed, using emoji fallback");
       }
 
+      // DALL-E 완료: 100% (성공 여부와 관계없이)
       // 성공: 결과 저장
-      await updateAnalysisStatus(id, "completed", result.job);
+      await updateAnalysisStatus(id, "completed", result.job, undefined, 100);
     } else {
-      // 실패: 기본 결과로 대체
+      // 실패: 기본 결과로 대체 (100%로 설정)
       console.warn("Using default result due to:", result.error);
       const defaultJob = getDefaultResult();
-      await updateAnalysisStatus(id, "completed", defaultJob);
+      await updateAnalysisStatus(id, "completed", defaultJob, undefined, 100);
     }
   } catch (error) {
     console.error("Process analysis error:", error);
-    // 에러 시에도 기본 결과 제공
+    // 에러 시에도 기본 결과 제공 (100%로 설정)
     const defaultJob = getDefaultResult();
-    await updateAnalysisStatus(id, "completed", defaultJob);
+    await updateAnalysisStatus(id, "completed", defaultJob, undefined, 100);
   }
 }
