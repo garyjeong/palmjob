@@ -1,10 +1,17 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms";
-import { DualUploadArea, GenderSelector } from "@/components/molecules";
-import { Gender } from "@/types";
+import { DualUploadArea, GenderSelector, ErrorModal } from "@/components/molecules";
+import { Gender, UploadErrorType } from "@/types";
+import {
+  saveUploadData,
+  restoreUploadData,
+  restoreFilesFromUrls,
+  clearUploadData,
+  getErrorInfo,
+} from "@/utils/storage";
 
 export default function UploadPage() {
   const router = useRouter();
@@ -13,6 +20,37 @@ export default function UploadPage() {
   const [rightImage, setRightImage] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorType, setErrorType] = useState<UploadErrorType>("UNKNOWN");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
+  // 페이지 로드 시 저장된 데이터 복원
+  useEffect(() => {
+    const stored = restoreUploadData();
+    if (stored) {
+      setGender(stored.gender);
+      
+      // Object URL에서 File 객체 복원
+      restoreFilesFromUrls(stored.leftImageUrl, stored.rightImageUrl)
+        .then((files) => {
+          if (files) {
+            setLeftImage(files.leftFile);
+            setRightImage(files.rightFile);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to restore files:", err);
+        });
+    }
+
+    // 에러 정보 확인
+    const errorInfo = getErrorInfo();
+    if (errorInfo) {
+      setErrorModalOpen(true);
+      setErrorType(errorInfo.errorType);
+      setErrorMessage(errorInfo.errorMessage);
+    }
+  }, []);
 
   const handleSubmit = useCallback(async () => {
     if (!gender || !leftImage || !rightImage) return;
@@ -21,6 +59,9 @@ export default function UploadPage() {
     setError(null);
 
     try {
+      // 제출 전에 입력 데이터 저장
+      saveUploadData(gender, leftImage, rightImage);
+
       const formData = new FormData();
       formData.append("gender", gender);
       formData.append("leftImage", leftImage);
@@ -36,6 +77,9 @@ export default function UploadPage() {
       if (!response.ok) {
         throw new Error(result.error || "분석 중 오류가 발생했습니다.");
       }
+
+      // 성공적으로 분석 시작 시 데이터 삭제
+      clearUploadData();
 
       router.push(`/analyzing/${result.id}`);
     } catch (err) {
@@ -158,6 +202,18 @@ export default function UploadPage() {
           </div>
         </div>
       </div>
+
+      {/* 에러 모달 */}
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        errorType={errorType}
+        errorMessage={errorMessage}
+        onRetry={() => {
+          setErrorModalOpen(false);
+          // 모달 닫기만 하고, 이미 복원된 데이터로 재시도 가능
+        }}
+      />
     </main>
   );
 }

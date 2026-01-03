@@ -7,7 +7,8 @@
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { Gender } from "@/types";
+import { Gender, PromptLog } from "@/types";
+import { savePromptLog } from "@/lib/redis";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_API_URL = "https://api.openai.com/v1/images/generations";
@@ -74,11 +75,13 @@ function getGenderDescription(gender: Gender): string {
  *
  * @param jobTitle - 직업명 (한글)
  * @param gender - 성별 (male | female)
+ * @param analysisId - 분석 ID (프롬프트 로그 저장용, 선택적)
  * @returns 생성된 이미지 URL
  */
 export async function generateJobImage(
   jobTitle: string,
-  gender: Gender
+  gender: Gender,
+  analysisId?: string
 ): Promise<GenerateImageResult> {
   if (!OPENAI_API_KEY) {
     console.error("OPENAI_API_KEY is not set");
@@ -117,6 +120,29 @@ export async function generateJobImage(
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error("DALL-E API error:", errorData);
+      
+      // 에러 발생 시에도 프롬프트 로그 저장
+      if (analysisId) {
+        const promptLog: PromptLog = {
+          id: `${analysisId}:dalle_generation:${Date.now()}`,
+          analysisId,
+          type: "dalle_generation",
+          prompt: {
+            template: prompt,
+          },
+          error: JSON.stringify(errorData),
+          metadata: {
+            model: "dall-e-3",
+            promptLength: prompt.length,
+          },
+          timestamp: new Date().toISOString(),
+        };
+        
+        savePromptLog(promptLog).catch((err) => {
+          console.warn("Failed to save error DALL-E prompt log:", err);
+        });
+      }
+      
       return {
         success: false,
         error: "이미지 생성 중 오류가 발생했습니다.",
@@ -134,6 +160,31 @@ export async function generateJobImage(
     }
 
     console.log(`Image generated successfully for: ${jobTitle} (${gender})`);
+
+    // 프롬프트 로그 저장 (디버깅 및 개선용)
+    if (analysisId) {
+      const promptLog: PromptLog = {
+        id: `${analysisId}:dalle_generation:${Date.now()}`,
+        analysisId,
+        type: "dalle_generation",
+        prompt: {
+          template: prompt, // 최종 프롬프트
+        },
+        response: {
+          // 이미지 URL은 제외 (별도 저장)
+        },
+        metadata: {
+          model: "dall-e-3",
+          promptLength: prompt.length,
+        },
+        timestamp: new Date().toISOString(),
+      };
+      
+      // 비동기로 저장 (실패해도 이미지 생성 결과에 영향 없음)
+      savePromptLog(promptLog).catch((err) => {
+        console.warn("Failed to save DALL-E prompt log:", err);
+      });
+    }
 
     return {
       success: true,

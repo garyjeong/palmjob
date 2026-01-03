@@ -4,7 +4,8 @@
  * 양손 손바닥 이미지를 분석하여 이색 직업을 추천합니다.
  */
 
-import { JobResult } from "@/types";
+import { JobResult, PromptLog } from "@/types";
+import { savePromptLog } from "@/lib/redis";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -120,6 +121,15 @@ export interface AnalyzeImagesResult {
 }
 
 /**
+ * 분석 ID를 받아 프롬프트 로그 저장
+ */
+let currentAnalysisId: string | null = null;
+
+export function setAnalysisId(id: string): void {
+  currentAnalysisId = id;
+}
+
+/**
  * 양손 손바닥 이미지 분석
  */
 export async function analyzeImages(
@@ -187,6 +197,33 @@ export async function analyzeImages(
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error("OpenAI API error:", errorData);
+      
+      // 에러 발생 시에도 프롬프트 로그 저장
+      if (currentAnalysisId) {
+        const promptLog: PromptLog = {
+          id: `${currentAnalysisId}:palm_analysis:${Date.now()}`,
+          analysisId: currentAnalysisId,
+          type: "palm_analysis",
+          prompt: {
+            system,
+            user,
+          },
+          error: JSON.stringify(errorData),
+          metadata: {
+            model: "gpt-4o-mini",
+            temperature: 0.8,
+            maxTokens: 600,
+            imageDetail: "low",
+            promptLength: system.length + user.length,
+          },
+          timestamp: new Date().toISOString(),
+        };
+        
+        savePromptLog(promptLog).catch((err) => {
+          console.warn("Failed to save error prompt log:", err);
+        });
+      }
+      
       return {
         success: false,
         error: "AI 분석 중 오류가 발생했습니다.",
@@ -214,6 +251,38 @@ export async function analyzeImages(
     }
 
     const job: JobResult = JSON.parse(jsonMatch[0]);
+
+    // 프롬프트 로그 저장 (디버깅 및 개선용)
+    if (currentAnalysisId) {
+      const promptLog: PromptLog = {
+        id: `${currentAnalysisId}:palm_analysis:${Date.now()}`,
+        analysisId: currentAnalysisId,
+        type: "palm_analysis",
+        prompt: {
+          system,
+          user,
+        },
+        response: {
+          title: job.title,
+          interpretation: job.interpretation,
+          shortComment: job.shortComment,
+          rawResponse: content, // 원본 응답 저장
+        },
+        metadata: {
+          model: "gpt-4o-mini",
+          temperature: 0.8,
+          maxTokens: 600,
+          imageDetail: "low",
+          promptLength: system.length + user.length,
+        },
+        timestamp: new Date().toISOString(),
+      };
+      
+      // 비동기로 저장 (실패해도 분석 결과에 영향 없음)
+      savePromptLog(promptLog).catch((err) => {
+        console.warn("Failed to save prompt log:", err);
+      });
+    }
 
     return {
       success: true,

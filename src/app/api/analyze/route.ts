@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAnalysis, updateAnalysisStatus } from "@/lib/redis";
-import { analyzeImages, getDefaultResult } from "@/lib/openai";
+import { createAnalysis, updateAnalysisStatus, saveImage } from "@/lib/redis";
+import { analyzeImages, getDefaultResult, setAnalysisId } from "@/lib/openai";
 import { generateJobImage } from "@/lib/dalle";
+import { validatePalmImages } from "@/lib/palmValidation";
 import { Gender } from "@/types";
 
 // 고유 ID 생성
@@ -81,6 +82,9 @@ export async function POST(request: NextRequest) {
     const id = generateId();
     await createAnalysis(id);
 
+    // 분석 ID를 openai 모듈에 설정 (프롬프트 로그 저장용)
+    setAnalysisId(id);
+
     // 분석 상태를 analyzing으로 업데이트
     await updateAnalysisStatus(id, "analyzing");
 
@@ -112,15 +116,56 @@ async function processAnalysis(
       fileToBase64(rightImage),
     ]);
 
-    // OpenAI Vision API로 양손 분석
+    // 이미지 저장 (옵션, 환경 변수로 제어)
+    if (process.env.ENABLE_IMAGE_STORAGE === "true") {
+      await Promise.all([
+        saveImage(id, "left", leftBase64),
+        saveImage(id, "right", rightBase64),
+      ]).catch((err) => {
+        console.warn("Failed to save images:", err);
+      });
+    }
+
+    // 손바닥 검증 단계 (비용 절감을 위해 분석 전에 검증)
+    const validation = await validatePalmImages(leftBase64, rightBase64, id);
+
+    if (!validation.isValid) {
+      // 검증 실패 시 즉시 종료 (분석 API 호출하지 않음)
+      const errorType = validation.errorType || "UNKNOWN";
+      const errorMessage = validation.message || "손바닥 이미지 검증에 실패했습니다.";
+      
+      await updateAnalysisStatus(id, "failed", undefined, errorType);
+      console.log(`[Validation Failed] ID: ${id}, ErrorType: ${errorType}, Message: ${errorMessage}`);
+      return; // 분석 API 호출하지 않음 (비용 절감)
+    }
+
+    console.log(`[Validation Passed] ID: ${id}, Proceeding to analysis`);
+
+    // 검증 통과 시에만 분석 진행
     const result = await analyzeImages(leftBase64, rightBase64);
 
     if (result.success && result.job) {
       // DALL-E로 직업 캐릭터 이미지 생성 (선택적, 실패해도 결과에 영향 없음)
-      const imageResult = await generateJobImage(result.job.title, gender);
+      const imageResult = await generateJobImage(result.job.title, gender, id);
       if (imageResult.success && imageResult.imageUrl) {
         result.job.cardImageUrl = imageResult.imageUrl;
         console.log(`Card image generated for: ${result.job.title} (${gender})`);
+        
+        // 카드 이미지 저장 (옵션, URL에서 이미지 다운로드 후 Base64로 저장)
+        if (process.env.ENABLE_IMAGE_STORAGE === "true" && imageResult.imageUrl) {
+          try {
+            // URL에서 이미지 다운로드 및 Base64 변환
+            const imageResponse = await fetch(imageResult.imageUrl);
+            const imageBuffer = await imageResponse.arrayBuffer();
+            const imageBase64 = Buffer.from(imageBuffer).toString("base64");
+            const mimeType = imageResponse.headers.get("content-type") || "image/png";
+            const imageDataUrl = `data:${mimeType};base64,${imageBase64}`;
+            
+            await saveImage(id, "card", imageDataUrl);
+          } catch (err) {
+            console.warn("Failed to save card image:", err);
+          }
+        }
       } else {
         console.warn("Card image generation failed, using emoji fallback");
       }

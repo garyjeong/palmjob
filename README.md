@@ -95,9 +95,18 @@ pnpm start
 # API
 NEXT_PUBLIC_API_URL=http://localhost:3000/api
 
-# AI Service (추후 설정)
-AI_SERVICE_API_KEY=your-api-key
-AI_SERVICE_ENDPOINT=https://api.example.com
+# AI Service
+OPENAI_API_KEY=your-openai-api-key
+
+# Redis
+REDIS_URL=redis://localhost:6379
+# 또는 Fly.io Redis
+# REDIS_URL=redis://palmjob-redis.upstash.io:6379
+
+# 이미지 저장 (선택적, 기본값: false)
+# true로 설정하면 손바닥 이미지와 결과 카드 이미지를 Redis에 Base64로 저장
+# 주의: 이미지 크기가 크므로 Redis 메모리 사용량이 증가합니다
+ENABLE_IMAGE_STORAGE=false
 ```
 
 ---

@@ -61,3 +61,47 @@ export const ERROR_MESSAGES: Record<UploadErrorType, string> = {
     "일시적으로 결과 생성에 실패했습니다. 다시 업로드해 주세요.",
   UNKNOWN: "오류가 발생했습니다. 다시 시도해 주세요.",
 };
+
+// 손바닥 검증 결과 타입
+export interface PalmValidationResult {
+  isValid: boolean;
+  errorType?: UploadErrorType;
+  details?: {
+    isPalm: boolean;
+    isLeftHand: boolean; // 첫 번째 이미지
+    isRightHand: boolean; // 두 번째 이미지
+    isComplete: boolean; // 손바닥 전체 포함
+    isBright: boolean;
+    isClear: boolean;
+    hasPalmLines: boolean;
+  };
+  message?: string;
+}
+
+// 프롬프트 로그 타입 (디버깅 및 개선용)
+export interface PromptLog {
+  id: string; // 분석 ID와 동일
+  analysisId: string; // 분석 ID
+  type: "palm_analysis" | "palm_validation" | "dalle_generation";
+  prompt: {
+    system?: string;
+    user?: string;
+    template?: string; // DALL-E의 경우
+  };
+  response?: {
+    // 이미지 URL은 제외 (이미지 저장은 별도)
+    title?: string;
+    interpretation?: string;
+    shortComment?: string;
+    rawResponse?: string; // 원본 응답 (JSON 파싱 전)
+  };
+  metadata?: {
+    model?: string;
+    temperature?: number;
+    maxTokens?: number;
+    imageDetail?: "low" | "high";
+    promptLength?: number;
+  };
+  error?: string;
+  timestamp: string;
+}

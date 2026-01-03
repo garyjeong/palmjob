@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Spinner } from "@/components/atoms";
+import { UploadErrorType, ERROR_MESSAGES } from "@/types";
+import { saveErrorInfo } from "@/utils/storage";
 
 const ANALYSIS_MESSAGES = [
   "손금 라인을 분석하고 있어요... 🔍",
@@ -50,7 +52,14 @@ export default function AnalyzingPage() {
           router.push(`/result/${id}`);
         }, 500);
       } else if (result.status === "failed") {
-        setError(result.error || "분석에 실패했습니다.");
+        const errorType = (result.error as UploadErrorType) || "UNKNOWN";
+        const errorMessage = ERROR_MESSAGES[errorType] || ERROR_MESSAGES.UNKNOWN;
+        
+        // 에러 정보 저장
+        saveErrorInfo(errorType, errorMessage);
+        
+        // 메인 페이지로 이동
+        router.push("/");
       }
     } catch (err) {
       console.error("Status check failed:", err);
@@ -61,32 +70,6 @@ export default function AnalyzingPage() {
     const interval = setInterval(checkStatus, 2000);
     return () => clearInterval(interval);
   }, [checkStatus]);
-
-  const handleRetry = () => {
-    router.push("/");
-  };
-
-  if (error) {
-    return (
-      <main className="min-h-dvh flex flex-col items-center justify-center px-4">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="text-6xl">😢</div>
-          <div>
-            <h1 className="text-xl font-bold text-[var(--color-text-primary)]">
-              분석에 실패했어요
-            </h1>
-            <p className="mt-2 text-[var(--color-text-secondary)]">{error}</p>
-          </div>
-          <button
-            onClick={handleRetry}
-            className="px-6 py-3 bg-[var(--color-primary)] text-white rounded-2xl font-semibold hover:brightness-110 transition-all"
-          >
-            다시 시도하기
-          </button>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="min-h-dvh flex flex-col items-center justify-center px-4">

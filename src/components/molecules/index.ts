@@ -9,3 +9,6 @@ export type { DualUploadAreaProps } from "./DualUploadArea";
 
 export { GenderSelector } from "./GenderSelector";
 export type { GenderSelectorProps } from "./GenderSelector";
+
+export { ErrorModal } from "./ErrorModal";
+export type { ErrorModalProps } from "./ErrorModal";

@@ -4,7 +4,8 @@ import { useState, useCallback, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button, Spinner } from "@/components/atoms";
-import { AnalysisResult } from "@/types";
+import { AnalysisResult, UploadErrorType, ERROR_MESSAGES } from "@/types";
+import { saveErrorInfo } from "@/utils/storage";
 
 export default function ResultPage() {
   const router = useRouter();
@@ -29,6 +30,19 @@ export default function ResultPage() {
 
         if (data.status === "analyzing") {
           router.push(`/analyzing/${id}`);
+          return;
+        }
+
+        if (data.status === "failed") {
+          // 검증 실패 등의 에러 처리
+          const errorType = (data.error as UploadErrorType) || "UNKNOWN";
+          const errorMessage = ERROR_MESSAGES[errorType] || ERROR_MESSAGES.UNKNOWN;
+          
+          // 에러 정보 저장
+          saveErrorInfo(errorType, errorMessage);
+          
+          // 메인 페이지로 이동
+          router.push("/");
           return;
         }
 
@@ -75,7 +89,13 @@ export default function ResultPage() {
     );
   }
 
-  if (error || !result?.job) {
+  // 에러 또는 실패 상태 처리 (로딩 중이거나 결과가 없는 경우만 표시)
+  if (isLoading) {
+    return null; // 로딩 중에는 아무것도 표시하지 않음 (위에서 이미 처리됨)
+  }
+
+  if (error && !result) {
+    // 네트워크 에러 등 일반 에러는 기존 방식 유지
     return (
       <main className="min-h-dvh flex flex-col items-center justify-center px-4">
         <div className="text-center space-y-6 max-w-md">
@@ -85,7 +105,29 @@ export default function ResultPage() {
               결과를 찾을 수 없어요
             </h1>
             <p className="mt-2 text-[var(--color-text-secondary)]">
-              {error || "결과가 만료되었거나 존재하지 않습니다."}
+              {error}
+            </p>
+          </div>
+          <Button onClick={handleRetry} size="lg">
+            새로 분석하기
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
+  if (!result?.job) {
+    // 결과가 없는 경우 (만료 등)
+    return (
+      <main className="min-h-dvh flex flex-col items-center justify-center px-4">
+        <div className="text-center space-y-6 max-w-md">
+          <div className="text-6xl">⏰</div>
+          <div>
+            <h1 className="text-xl font-bold text-[var(--color-text-primary)]">
+              결과가 만료되었어요
+            </h1>
+            <p className="mt-2 text-[var(--color-text-secondary)]">
+              결과는 30일 동안만 보관됩니다.
             </p>
           </div>
           <Button onClick={handleRetry} size="lg">
