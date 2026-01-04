@@ -17,6 +17,11 @@ export default function ResultPage() {
   const [isCopied, setIsCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // 페이지 로드 시 스크롤을 최상단으로 이동
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // 결과 데이터 로드
   useEffect(() => {
     const fetchResult = async () => {
@@ -51,6 +56,8 @@ export default function ResultPage() {
         setError(err instanceof Error ? err.message : "오류가 발생했습니다.");
       } finally {
         setIsLoading(false);
+        // 데이터 로드 완료 후에도 스크롤을 최상단으로 이동
+        window.scrollTo(0, 0);
       }
     };
 
