@@ -176,21 +176,21 @@ export async function analyzeImages(
                 type: "image_url",
                 image_url: {
                   url: formatImage(leftImageBase64),
-                  detail: "low",
+                  detail: "high", // 손금 세부 분석을 위해 고해상도 필수
                 },
               },
               {
                 type: "image_url",
                 image_url: {
                   url: formatImage(rightImageBase64),
-                  detail: "low",
+                  detail: "high", // 손금 세부 분석을 위해 고해상도 필수
                 },
               },
             ],
           },
         ],
-        max_tokens: 600,
-        temperature: 0.8,
+        max_tokens: 800, // 상세 분석을 위해 증가
+        temperature: 1.0, // 다양한 결과를 위해 증가
       }),
     });
 
@@ -211,9 +211,9 @@ export async function analyzeImages(
           error: JSON.stringify(errorData),
           metadata: {
             model: "gpt-4o-mini",
-            temperature: 0.8,
-            maxTokens: 600,
-            imageDetail: "low",
+            temperature: 1.0,
+            maxTokens: 800,
+            imageDetail: "high",
             promptLength: system.length + user.length,
           },
           timestamp: new Date().toISOString(),
@@ -270,9 +270,9 @@ export async function analyzeImages(
         },
         metadata: {
           model: "gpt-4o-mini",
-          temperature: 0.8,
-          maxTokens: 600,
-          imageDetail: "low",
+          temperature: 1.0,
+          maxTokens: 800,
+          imageDetail: "high",
           promptLength: system.length + user.length,
         },
         timestamp: new Date().toISOString(),

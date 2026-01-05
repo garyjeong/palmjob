@@ -1,6 +1,6 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
-import { getAnalysis } from "@/lib/redis";
+import { getAnalysis, getImage } from "@/lib/redis";
 
 // Node.js Runtime 사용 (Edge에서 localhost fetch 문제 해결)
 export const runtime = "nodejs";
@@ -72,8 +72,15 @@ export async function GET(
     // 결과가 없거나 직업 정보가 없는 경우 기본 이미지
     const title = job?.title || "나만의 이색 직업";
     const shortComment = job?.shortComment || "손금으로 찾아보세요!";
-    const cardImageUrl = job?.cardImageUrl;
     const emoji = getJobEmoji(title);
+
+    // Redis에서 저장된 카드 이미지 가져오기 (DALL-E URL 만료 문제 해결)
+    // 우선순위: Redis 저장 이미지 > DALL-E URL (폴백)
+    let cardImageUrl = await getImage(id, "card");
+    if (!cardImageUrl && job?.cardImageUrl) {
+      // Redis에 저장된 이미지가 없으면 원본 URL 사용 (만료 가능성 있음)
+      cardImageUrl = job.cardImageUrl;
+    }
 
     // 폰트 옵션 설정
     const fontOptions = fontData ? {

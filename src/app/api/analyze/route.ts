@@ -156,20 +156,18 @@ async function processAnalysis(
         result.job.cardImageUrl = imageResult.imageUrl;
         console.log(`Card image generated for: ${result.job.title} (${gender})`);
         
-        // 카드 이미지 저장 (옵션, URL에서 이미지 다운로드 후 Base64로 저장)
-        if (process.env.ENABLE_IMAGE_STORAGE === "true" && imageResult.imageUrl) {
-          try {
-            // URL에서 이미지 다운로드 및 Base64 변환
-            const imageResponse = await fetch(imageResult.imageUrl);
-            const imageBuffer = await imageResponse.arrayBuffer();
-            const imageBase64 = Buffer.from(imageBuffer).toString("base64");
-            const mimeType = imageResponse.headers.get("content-type") || "image/png";
-            const imageDataUrl = `data:${mimeType};base64,${imageBase64}`;
-            
-            await saveImage(id, "card", imageDataUrl);
-          } catch (err) {
-            console.warn("Failed to save card image:", err);
-          }
+        // 카드 이미지 저장 (OG 이미지에서 필요, DALL-E URL 만료 문제 해결을 위해 항상 저장)
+        try {
+          // URL에서 이미지 다운로드 및 Base64 변환
+          const imageResponse = await fetch(imageResult.imageUrl);
+          const imageBuffer = await imageResponse.arrayBuffer();
+          const imageBase64 = Buffer.from(imageBuffer).toString("base64");
+          const mimeType = imageResponse.headers.get("content-type") || "image/png";
+          const imageDataUrl = `data:${mimeType};base64,${imageBase64}`;
+
+          await saveImage(id, "card", imageDataUrl);
+        } catch (err) {
+          console.warn("Failed to save card image:", err);
         }
       } else {
         console.warn("Card image generation failed, using emoji fallback");

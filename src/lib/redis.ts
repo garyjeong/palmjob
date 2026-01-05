@@ -176,10 +176,11 @@ export async function getPromptLogs(
 
 /**
  * 이미지 저장 (Base64)
- * 
+ *
  * Redis는 최대 512MB까지 저장 가능하지만, Base64 이미지는 크기가 큼
- * 환경 변수 ENABLE_IMAGE_STORAGE=true로 활성화
- * 
+ * - card 이미지: 항상 저장 (OG 이미지에서 필요, DALL-E URL 만료 문제 해결)
+ * - left/right 이미지: 환경 변수 ENABLE_IMAGE_STORAGE=true로 활성화
+ *
  * @param id - 분석 ID
  * @param imageType - 이미지 타입
  * @param imageBase64 - Base64 인코딩된 이미지
@@ -189,9 +190,10 @@ export async function saveImage(
   imageType: "left" | "right" | "card",
   imageBase64: string
 ): Promise<void> {
-  // 환경 변수로 제어
-  if (process.env.ENABLE_IMAGE_STORAGE !== "true") {
-    return; // 이미지 저장 비활성화
+  // 카드 이미지는 항상 저장 (OG에서 필요)
+  // 손바닥 이미지는 환경 변수로 제어
+  if (imageType !== "card" && process.env.ENABLE_IMAGE_STORAGE !== "true") {
+    return; // 손바닥 이미지 저장 비활성화
   }
 
   try {
